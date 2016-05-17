@@ -1,0 +1,6 @@
+services:
+
+    app.repository.page:
+        class: AppBundle\Repository\PageRepository
+        factory: [ "@doctrine_mongodb.odm.default_document_manager", getRepository ]
+        arguments: [ AppBundle\Document\Page ]

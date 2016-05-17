@@ -1,0 +1,116 @@
+body {
+    font-family: "proxima-nova",sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.navbar-logo {
+    height: inherit;
+}
+
+.create-sidebar {
+    float: left;
+    width: 252px;
+    background-color: rgb(44, 62, 80);
+}
+
+.create-sidebar-header {
+    height: 32px;
+    padding-top: 7px;
+    text-align: center;
+    color: rgb(156, 179, 202);
+    background-color: rgb(79, 101, 123);
+    border-bottom: 2px solid rgb(26, 39, 51);
+}
+
+.create-sidebar-body {
+    padding: 25px 32px 22px;
+}
+
+.create-template-page {
+    height: 34px;
+    padding: 0 8px;
+    margin-bottom: 10px;
+    background-color: rgb(79, 101, 123);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.create-template-page_active {
+    background-color: rgb(81, 141, 202);
+}
+
+.create-template-page_delete {
+    background-color: rgb(216, 106, 101);
+}
+
+.create-template-page_new {
+    background-color: transparent;
+    border: 2px solid rgb(79, 101, 123);
+}
+
+.create-template-page-name {
+    width: 116px;
+    padding: 8px 0 8px 4px;
+    color: rgb(255, 255, 255);
+    background: none;
+    border: none;
+    outline: none;
+    text-transform: uppercase;
+}
+
+.create-template-page_new .create-template-page-name {
+    padding: 7px;
+}
+
+.create-template-page-name[disabled] {
+    cursor: pointer;
+}
+
+.create-template-page-name::-webkit-input-placeholder {
+    /* Chrome/Opera/Safari */
+    color: rgb(79, 101, 123);
+}
+
+.btn-input-link {
+    padding: 7px 4px 3px;
+    color: transparent;
+}
+
+.btn-input-link:focus {
+    color: transparent;
+    outline: none;
+}
+
+.create-template-page:hover .btn-input-link {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.create-template-page_new .btn-input-link {
+    padding: 6px 4px 2px;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.create-template-page_new:hover .btn-input-link {
+    color: rgb(156, 179, 202);
+}
+
+/** Bootstrap overrides **/
+
+.navbar {
+    min-height: 41px;
+    margin-bottom: 0;
+}
+
+.navbar-manhattan {
+    background-color: rgb(81, 141, 202);
+    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 1);
+}
+
+.navbar-brand {
+    height: 29px;
+    padding: 8px 0 0 32px;
+}

@@ -16,7 +16,8 @@ framework:
         resource: "%kernel.root_dir%/config/routing.yml"
         strict_requirements: ~
     form:            ~
-    csrf_protection: ~
+    csrf_protection:
+        enabled: false
     validation:      { enable_annotations: true }
     #serializer:      { enable_annotations: true }
     templating:
@@ -59,6 +60,16 @@ doctrine:
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
 
+doctrine_mongodb:
+    connections:
+        default:
+            server: "%mongo_uri%"
+            options: {}
+    default_database: "%mongo_db%"
+    document_managers:
+        default:
+            auto_mapping: true
+
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"
@@ -66,3 +77,11 @@ swiftmailer:
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }
+
+api_response:
+    paths:
+        ^/api/:
+            cors_allow_origin_regex: "%cors_allow_origin%"
+            cors_allow_headers:
+                - Authorization
+                - Content-Type

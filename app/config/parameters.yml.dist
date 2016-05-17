@@ -17,3 +17,10 @@ parameters:
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
+
+    # MongoDB connection details
+    mongo_uri: mongodb://10.123.145.120:27017
+    mongo_db: manhattan
+
+    # API response bundle options
+    cors_allow_origin: .*

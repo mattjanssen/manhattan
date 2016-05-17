@@ -7,7 +7,7 @@ module.exports = {
 
         // Add one empty template.
         viewModel.templates = [{
-            name: 'Page'
+            name: ''
         }];
 
         viewModel.addTemplate = addTemplate;
