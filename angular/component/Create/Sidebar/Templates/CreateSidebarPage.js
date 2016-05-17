@@ -13,7 +13,7 @@ module.exports = {
         addTemplate: '&',
         removeTemplate: '&'
     },
-    controller: function() {
+    controller: function($scope, PageResource) {
         var viewModel = this;
 
         // Data and functions brought in from bindings, available to the view.
@@ -21,7 +21,7 @@ module.exports = {
         viewModel.template;
 
         // Data available to the view.
-        viewModel.saved = false;
+        viewModel.saved = !!viewModel.template.id;
         viewModel.active = false;
         viewModel.triggerEdit = false;
         viewModel.editing = false;
@@ -32,6 +32,9 @@ module.exports = {
         viewModel.submit = submit;
         viewModel.remove = remove;
         viewModel.onTileClick = onTileClick;
+
+        // Register watches.
+        $scope.$watch('$ctrl.template.name', onNameChange);
 
         /**
          * Handle General Clicks on the Template Tile
@@ -78,6 +81,12 @@ module.exports = {
             viewModel.saved = true;
             viewModel.editing = false;
 
+            // Persist the document to the server.
+            PageResource.save(viewModel.template).$promise.then(function (success) {
+                // Bring in the ID and other server-generated properties.
+                _.assign(viewModel.templates, success.data);
+            });
+
             // Tell parent component that a new template has been added.
             viewModel.addTemplate();
         }
@@ -86,9 +95,24 @@ module.exports = {
          * Delete this template.
          */
         function remove() {
+            PageResource.remove(viewModel.template);
+
             // Tell parent component that this template was deleted.
             // The parent already has a reference to the template object, and doesn't need to be passed in.
             viewModel.removeTemplate();
+        }
+
+        /**
+         * Handle Changes to the Name
+         *
+         * @param template
+         */
+        function onNameChange() {
+            if (!viewModel.template.id) {
+                return;
+            }
+
+            PageResource.put(viewModel.template);
         }
     }
 };

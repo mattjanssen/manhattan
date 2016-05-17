@@ -18,13 +18,12 @@ require('angular').module('app', [
         // Do not use hash (#) before AngularJS routes and parameters.
         $locationProvider.html5Mode(true);
 
-        // Not sure?
+        // Intercept all $http communications to handle API authorization and responses.
+        $httpProvider.interceptors.push('ApiHttpInterceptor');
+
         $httpProvider.defaults.headers.patch = {
             'Content-Type': 'application/json;charset=utf-8'
         };
-
-        // Transform API responses.
-        $httpProvider.interceptors.push('ApiResponseInterceptor');
 
         // Setup route to handle any Single Page App pages.
         $stateProvider

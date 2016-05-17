@@ -10,6 +10,7 @@ use MattJanssen\ApiResponseBundle\Exception\ApiFormException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -76,9 +77,38 @@ class PageController extends Controller
     public function createAction(Request $request)
     {
         $page = new Page();
-        $form = $this->createFormBuilder($page)
-            ->add('name')
-            ->getForm();
+        $form = $this->createEditForm($page);
+
+        $data = json_decode($request->getContent(), true);
+
+        $form->submit($data);
+
+        if (!$form->isValid()) {
+            throw new ApiFormException($form);
+        }
+
+        $this->documentManager->persist($page);
+        $this->documentManager->flush();
+
+        return $page;
+    }
+
+    /**
+     * Update Page
+     *
+     * @Method("PUT")
+     * @Route("/api/page/{id}")
+     *
+     * @param Request $request
+     * @param Page $page
+     *
+     * @return Page
+     *
+     * @throws ApiFormException
+     */
+    public function updateAction(Request $request, Page $page)
+    {
+        $form = $this->createEditForm($page);
 
         $data = json_decode($request->getContent(), true);
 
@@ -106,5 +136,22 @@ class PageController extends Controller
     {
         $this->documentManager->remove($page);
         $this->documentManager->flush();
+    }
+
+    /**
+     * Generate Form
+     *
+     * @param Page $page
+     * @return Form
+     */
+    private function createEditForm(Page $page)
+    {
+        $form = $this->createFormBuilder($page, [
+            'allow_extra_fields' => true,
+        ])
+            ->add('name')
+            ->getForm();
+
+        return $form;
     }
 }

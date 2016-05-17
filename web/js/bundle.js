@@ -20,13 +20,12 @@ require('angular').module('app', [
         // Do not use hash (#) before AngularJS routes and parameters.
         $locationProvider.html5Mode(true);
 
-        // Not sure?
+        // Intercept all $http communications to handle API authorization and responses.
+        $httpProvider.interceptors.push('ApiHttpInterceptor');
+
         $httpProvider.defaults.headers.patch = {
             'Content-Type': 'application/json;charset=utf-8'
         };
-
-        // Transform API responses.
-        $httpProvider.interceptors.push('ApiResponseInterceptor');
 
         // Setup route to handle any Single Page App pages.
         $stateProvider
@@ -77,7 +76,7 @@ require('./resource');
 require('./service');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Environment":2,"./component":16,"./directive":18,"./filter":19,"./resource":50,"./service":52,"angular":32,"angular-animate":21,"angular-resource":23,"angular-route":25,"angular-sanitize":27,"angular-ui-bootstrap":29,"angular-ui-router":30,"bootstrap":33,"jquery":47,"jquery-ui":46,"lodash":48,"moment":49}],2:[function(require,module,exports){
+},{"./Environment":2,"./component":16,"./directive":18,"./filter":19,"./resource":51,"./service":55,"angular":32,"angular-animate":21,"angular-resource":23,"angular-route":25,"angular-sanitize":27,"angular-ui-bootstrap":29,"angular-ui-router":30,"bootstrap":33,"jquery":47,"jquery-ui":46,"lodash":48,"moment":49}],2:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -137,7 +136,7 @@ module.exports = {
         addTemplate: '&',
         removeTemplate: '&'
     },
-    controller: function() {
+    controller: function($scope, PageResource) {
         var viewModel = this;
 
         // Data and functions brought in from bindings, available to the view.
@@ -145,7 +144,7 @@ module.exports = {
         viewModel.template;
 
         // Data available to the view.
-        viewModel.saved = false;
+        viewModel.saved = !!viewModel.template.id;
         viewModel.active = false;
         viewModel.triggerEdit = false;
         viewModel.editing = false;
@@ -156,6 +155,9 @@ module.exports = {
         viewModel.submit = submit;
         viewModel.remove = remove;
         viewModel.onTileClick = onTileClick;
+
+        // Register watches.
+        $scope.$watch('$ctrl.template.name', onNameChange);
 
         /**
          * Handle General Clicks on the Template Tile
@@ -202,6 +204,12 @@ module.exports = {
             viewModel.saved = true;
             viewModel.editing = false;
 
+            // Persist the document to the server.
+            PageResource.save(viewModel.template).$promise.then(function (success) {
+                // Bring in the ID and other server-generated properties.
+                _.assign(viewModel.templates, success.data);
+            });
+
             // Tell parent component that a new template has been added.
             viewModel.addTemplate();
         }
@@ -210,9 +218,24 @@ module.exports = {
          * Delete this template.
          */
         function remove() {
+            PageResource.remove(viewModel.template);
+
             // Tell parent component that this template was deleted.
             // The parent already has a reference to the template object, and doesn't need to be passed in.
             viewModel.removeTemplate();
+        }
+
+        /**
+         * Handle Changes to the Name
+         *
+         * @param template
+         */
+        function onNameChange() {
+            if (!viewModel.template.id) {
+                return;
+            }
+
+            PageResource.put(viewModel.template);
         }
     }
 };
@@ -222,25 +245,42 @@ module.exports = {
 
 module.exports = {
     templateUrl: 'view/create/sidebar/templates/templates.html',
-    controller: function() {
+    controller: function (PageResource) {
         var viewModel = this;
 
         // Add one empty template.
-        viewModel.templates = [{
-            name: ''
-        }];
+        viewModel.templates = null;
 
         viewModel.addTemplate = addTemplate;
         viewModel.removeTemplate = removeTemplate;
 
+        // Populate the existing templates list.
+        PageResource.query().$promise.then(function (success) {
+            viewModel.templates = success.data;
+            appendBlankTemplate();
+        });
+
+        /**
+         * Called by Child Component after Adding a Template
+         */
         function addTemplate() {
+            appendBlankTemplate();
+        }
+
+        /**
+         * Called by Child Component after Deleting a Template
+         */
+        function removeTemplate(template) {
+            _.pull(viewModel.templates, template)
+        }
+
+        /**
+         * Add a Blank Template to the Bottom of the List
+         */
+        function appendBlankTemplate() {
             viewModel.templates.push({
                 name: ''
             });
-        }
-
-        function removeTemplate(template) {
-            _.pull(viewModel.templates, template)
         }
     }
 };
@@ -97330,29 +97370,322 @@ return jQuery;
 
 }));
 },{}],50:[function(require,module,exports){
-arguments[4][19][0].apply(exports,arguments)
-},{"angular":32,"dup":19}],51:[function(require,module,exports){
 'use strict';
 
-module.exports = function () {
-    var ApiResponseInterceptor = {
-        'response': function (response) {
-            if (response.data.data) {
-                response.data = response.data.data;
-            }
+module.exports = function (ApiResource) {
+    var PageResource = ApiResource('/page/:id', { id: '@id' }, {
+    });
 
-            return response;
-        }
-    };
-
-    return ApiResponseInterceptor;
+    return PageResource;
 };
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
-    .factory('ApiResponseInterceptor', require('./ApiResponseInterceptor'))
+    .factory('PageResource', require('./PageResource'))
 ;
 
-},{"./ApiResponseInterceptor":51,"angular":32}]},{},[1]);
+},{"./PageResource":50,"angular":32}],52:[function(require,module,exports){
+'use strict';
+
+module.exports = function ($injector, $q, $rootScope, API_URL) {
+    /**
+     * Use with $httpProvider.interceptors.push() to intercept all AJAX requests and responses
+     * in order to add authentication headers and detect authentication issues.
+     *
+     * @link https://docs.angularjs.org/api/ng/service/$http
+     */
+    var service = {};
+
+    service.request = request;
+    service.responseError = responseError;
+
+    return service;
+
+    /**
+     * Intercept Requests
+     *
+     * @param HttpConfig config
+     * @return Promise<HttpConfig>
+     */
+    function request(config) {
+        if (!config.apiRequest) {
+            // Not an API request. Do not alter. This flag is set by the ApiResourceFactory.
+            return config;
+        }
+
+        // For API requests append the API URL.
+        config.url = API_URL + config.url;
+
+        // Avoid the circular dependency by run-time injection.
+        var authenticationService = $injector.get('AuthenticationService');
+
+        // Either the user must be authenticated, or the endpoint must allow anonymous use.
+        // @TODO Re-wire.
+        if (true || config.allowAnonymous || authenticationService.isLoggedIn()) {
+            // For API requests check to see we have credentials.
+            var jwt = authenticationService.getJwt();
+
+            // Authentication is already present. Continue with request.
+            addJwtHeaderToConfig(config, jwt);
+
+            return config;
+        }
+
+        // We're requesting an API endpoint without first being logged in. Either we can authenticate using
+        // stored credentials, or we'll have to fail this request.
+        return $q(function (resolve, reject) {
+            authenticationService.reloadCredentials().then(function () {
+                // For API requests check to see we have credentials.
+                var jwt = authenticationService.getJwt();
+
+                // The stored credentials were valid. Continue with request.
+                addJwtHeaderToConfig(config, jwt);
+
+                resolve(config);
+            }).catch(function () {
+                // The stored credentials were not valid. Fail the request.
+                reject($q.reject());
+            });
+        });
+    };
+
+    /**
+     * Handle API HTTP Errors
+     *
+     * @param HttpRejection rejection
+     * @return Promise<HttpRejection|Request>
+     */
+    function responseError(rejection) {
+        if (!rejection.config || !rejection.config.apiRequest) {
+            // Not an API request. Do not process. This flag is set by the ApiResourceFactory.
+            return rejection;
+        }
+
+        if (rejection.status === 401) {
+            // The credentials used on the request were not valid. The JWT may have expired.
+            // Attempt to reload credentials.
+            return $q(function (resolve, reject) {
+                // Avoid the circular dependency by run-time injection.
+                var authenticationService = $injector.get('AuthenticationService');
+
+                authenticationService.reloadCredentials().then(function () {
+                    // Credentials reload was successful. Retry the request.
+                    // @TODO Recreate the request promise.
+                    debugger;
+                }).catch(function () {
+                    // Stored credentials were not valid. Fail the request.
+                    debugger;
+                    reject(rejection);
+                });
+            });
+        }
+
+        if (rejection.status === 500) {
+            var error = _.get(rejection, 'data.error');
+
+            if (error) {
+                alert('Server API error: ' + error.title);
+            } else {
+                alert('Server 500 error: ' + rejection.statusText);
+            }
+        }
+
+        return rejection;
+    }
+
+    /**
+     * Attache Current JWT to Request Config
+     *
+     * Do NOT cache this JWT header or token as it may change during an asynchronous authentication request.
+     *
+     * @param config
+     */
+    function addJwtHeaderToConfig(config, jwt) {
+
+        // Add the JWT to a modified HTTP Basic authentication header.
+        // https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#2-use-the-token
+        config.headers['Authorization'] = 'Bearer ' + jwt;
+    }
+};
+
+},{}],53:[function(require,module,exports){
+'use strict';
+
+module.exports = function ($resource) {
+    var $apiResource = function(url, paramDefaults, actions) {
+        // Explicitly define all actions.
+        var apiDefaults = {
+            get: { method: 'GET' },
+            save: { method: 'POST' }, // POST
+            post: { method: 'POST' },
+            put: { method: 'PUT' },
+            query: {
+                method: 'GET',
+                cancellable: true
+            },
+            remove: { method: 'DELETE' }, // DELETE
+            delete: { method: 'DELETE' },
+            patch: { method: 'PATCH' }
+        };
+
+        // Allow additional actions to be added.
+        actions = angular.extend({}, apiDefaults, actions);
+
+        // All actions must set the apiRequest boolean for the ApiHttpInterceptor to pick up on.
+        _.forOwn(actions, function(config, name) {
+            config.apiRequest = true;
+        });
+
+        return $resource(url, paramDefaults, actions);
+    };
+
+    return $apiResource;
+};
+
+},{}],54:[function(require,module,exports){
+'use strict';
+
+module.exports = function ($http, $q, $rootScope, API_URL) {
+    var AuthenticationService = {};
+
+    var KEY_USERNAME = 'u';
+    var KEY_PASSWORD = 'p';
+
+    var storage = localStorage;
+    var jwt = null;
+    var reloadingPromise = null;
+
+    AuthenticationService.reloadCredentials = reloadCredentials;
+    AuthenticationService.getJwt = getJwt;
+    AuthenticationService.isLoggedIn = isLoggedIn;
+    AuthenticationService.login = login;
+    AuthenticationService.logout = logout;
+
+    return AuthenticationService;
+
+    /**
+     * Get new JWT from Server
+     *
+     * The promise is rejected if credentials aren't stored in local storage, or they fail server validation.
+     *
+     * @return Promise
+     */
+    function reloadCredentials() {
+        if (reloadingPromise) {
+            // A reload is already in progress.
+            return reloadingPromise;
+        }
+
+        var username = storage.getItem(KEY_USERNAME);
+        var password = storage.getItem(KEY_PASSWORD);
+
+        if (!username || !password) {
+            // Credentials are missing. Enforce a logged-out state.
+            logout();
+
+            return $q.reject();
+        }
+
+        reloadingPromise = login(username, password);
+
+        reloadingPromise.finally(function () {
+            // Clear the promise cache so the next call re-triggers a new authentication attempt.
+            reloadingPromise = null;
+        });
+
+        return reloadingPromise;
+    }
+
+    /**
+     * Get the JWT
+     *
+     * @return string
+     */
+    function getJwt() {
+        return jwt;
+    }
+
+    /**
+     * Check if Logged In
+     *
+     * @return boolean
+     */
+    function isLoggedIn() {
+        return !!jwt;
+    };
+
+    /**
+     * POST Credentials to Login URL and Store JWT
+     *
+     * @param string username
+     * @param string password
+     *
+     * @return Promise
+     */
+    function login(username, password) {
+        // The login endpoint takes HTTP Basic auth. All other endpoints use JWT.
+        var postConfig = {
+            headers: {
+                Authorization: 'Basic ' + window.btoa(username + ':' + password)
+            }
+        };
+
+        return $q(function (resolve, reject) {
+            $http.post(API_URL + '/auth', null, postConfig).then(function (success) {
+                var oldJwt = jwt;
+
+                // Store the JWT in memory for future requests. This will be lost on page reload.
+                jwt = success.data.data;
+
+                // Store the credentials in local storage to renew the JWT after page reload or token timeout.
+                storage.setItem(KEY_USERNAME, username);
+                storage.setItem(KEY_PASSWORD, password);
+
+                if (!oldJwt) {
+                    // If there wasn't already a token, then this is a new login and not just a reload.
+                    console.log('authentication.login');
+                    $rootScope.$emit('authentication.login');
+                }
+
+                resolve();
+            }, function (failure) {
+                // Credentials failed. Force a fully-logged-out state.
+                logout();
+
+                reject();
+            });
+        });
+    };
+
+    /**
+     * Clear Credentials and Trigger Logout if Logged In
+     */
+    function logout() {
+        storage.removeItem(KEY_USERNAME);
+        storage.removeItem(KEY_PASSWORD);
+
+        if (!isLoggedIn()) {
+            // The user is not currently logged in.
+            return;
+        }
+
+        // The presence of a token indicates a logged-in state. Trigger logout.
+        jwt = null;
+
+        console.log('authentication.logout');
+        $rootScope.$emit('authentication.logout');
+    };
+};
+
+},{}],55:[function(require,module,exports){
+'use strict';
+
+require('angular').module('app')
+    .factory('ApiHttpInterceptor', require('./ApiHttpInterceptor'))
+    .factory('ApiResource', require('./ApiResource'))
+    .factory('AuthenticationService', require('./AuthenticationService'))
+;
+
+},{"./ApiHttpInterceptor":52,"./ApiResource":53,"./AuthenticationService":54,"angular":32}]},{},[1]);
