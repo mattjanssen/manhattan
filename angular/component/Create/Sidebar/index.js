@@ -3,3 +3,5 @@
 require('angular').module('app')
     .component('sidebar', require('./Sidebar'))
 ;
+
+require('./Templates');
