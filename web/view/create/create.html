@@ -1,5 +1,12 @@
 <div ng-if="$ctrl.isInitd()">
-    <sidebar pages="$ctrl.pages"></sidebar>
+    <div class="create-sidebar">
+        <templates pages="$ctrl.pages" edit-page="$ctrl.editPage" get-editing-page="$ctrl.getEditingPage"></templates>
 
-    <editor></editor>
+        <elements></elements>
+
+        <settings></settings>
+    </div>
+
+
+    <editor pages="$ctrl.pages" edit-page="$ctrl.editPage" get-editing-page="$ctrl.getEditingPage"></editor>
 </div>

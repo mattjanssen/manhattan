@@ -1,24 +1,45 @@
 'use strict';
 
 module.exports = {
+    /**
+     * Edit Templates Sidebar
+     *
+     * This will not be instantiated by the parent component until the pages have been loaded.
+     * Pages array is guaranteed at this point.
+     */
     templateUrl: 'view/create/sidebar/templates/templates.html',
     bindings: {
-        pages: '<'
+        pages: '<',
+        editPage: '<',
+        getEditingPage: '<'
     },
     controller: function () {
         var viewModel = this;
 
         viewModel.pages;
+        viewModel.editPage;
+        viewModel.getEditingPage;
 
-        viewModel.addTemplate = addTemplate;
+        viewModel.pageAdded = pageAdded;
         viewModel.removeTemplate = removeTemplate;
+
+        if (viewModel.pages.length) {
+        }
 
         appendBlankTemplate();
 
         /**
-         * Called by Child Component after Adding a Template
+         * Call after Adding a Page
+         *
+         * @param page
          */
-        function addTemplate() {
+        function pageAdded(page) {
+            if (viewModel.pages.length === 1) {
+                // If this is the first page being added, then open it for editing.
+                viewModel.editPage(page);
+            }
+
+            // Add another placeholder.
             appendBlankTemplate();
         }
 

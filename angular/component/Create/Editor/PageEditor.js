@@ -1,13 +1,13 @@
 'use strict';
 
 module.exports = {
-    templateUrl: 'view/create/sidebar/sidebar.html',
+    templateUrl: 'view/create/editor/page-editor.html',
     bindings: {
-        pages: '<'
+        page: '<'
     },
     controller: function() {
         var viewModel = this;
 
-        viewModel.pages;
+        viewModel.page;
     }
 };

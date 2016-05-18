@@ -109,20 +109,65 @@ require('angular').module('app')
 
 module.exports = {
     templateUrl: 'view/create/create.html',
-    controller: function($timeout, PageResource) {
+    controller: function($scope, PageResource) {
         var viewModel = this;
+
+        var editingPage = null;
 
         viewModel.pages = null;
 
         viewModel.isInitd = isInitd;
+        viewModel.editPage = editPage;
+        viewModel.getEditingPage = getEditingPage;
+
+        $scope.$watchCollection('$ctrl.pages', function (newArray, oldArray) {
+            if (!newArray) {
+                // This watch is fired upon init, before the array is even populated.
+                return;
+            }
+
+            console.log(newArray, oldArray);
+        });
 
         // Populate the existing templates list.
         PageResource.query().$promise.then(function (success) {
             viewModel.pages = success.data;
+
+            if (viewModel.pages.length) {
+                editPage(viewModel.pages[0]);
+            }
         });
 
+        /**
+         * Check if Component is Fully Loaded
+         *
+         * This will be true once all necessary data is asynchronously loaded.
+         *
+         * @returns {boolean}
+         */
         function isInitd() {
             return !!viewModel.pages;
+        }
+
+        /**
+         * Begin Editing a Page
+         *
+         * This is called from child components.
+         *
+         * @param page
+         */
+        function editPage(page) {
+            editingPage = page;
+            $scope.$broadcast('page.edit', page);
+        }
+
+        /**
+         * Get Page Being Edited
+         * 
+         * @returns page
+         */
+        function getEditingPage() {
+            return editingPage;
         }
     }
 };
@@ -132,19 +177,58 @@ module.exports = {
 
 module.exports = {
     templateUrl: 'view/create/editor/editor.html',
-    controller: function() {
+    bindings: {
+        pages: '<',
+        editPage: '<',
+        getEditingPage: '<'
+    },
+    controller: function($scope) {
         var viewModel = this;
+
+        viewModel.pages;
+        viewModel.editPage;
+        viewModel.getEditingPage;
+
+        viewModel.isEditing = isEditing;
+
+        /**
+         * Check if Page is Being Edited
+         *
+         * Used to apply CSS styles to button repeat.
+         *
+         * @param page
+         * @returns {boolean}
+         */
+        function isEditing(page) {
+            return page === viewModel.getEditingPage();
+        }
     }
 };
 
 },{}],5:[function(require,module,exports){
 'use strict';
 
+module.exports = {
+    templateUrl: 'view/create/editor/page-editor.html',
+    bindings: {
+        page: '<'
+    },
+    controller: function() {
+        var viewModel = this;
+
+        viewModel.page;
+    }
+};
+
+},{}],6:[function(require,module,exports){
+'use strict';
+
 require('angular').module('app')
     .component('editor', require('./Editor'))
+    .component('pageEditor', require('./PageEditor'))
 ;
 
-},{"./Editor":4,"angular":37}],6:[function(require,module,exports){
+},{"./Editor":4,"./PageEditor":5,"angular":37}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -154,7 +238,7 @@ module.exports = {
     }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -164,7 +248,7 @@ module.exports = {
     }
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -172,7 +256,7 @@ require('angular').module('app')
     .component('elements', require('./Elements'))
 ;
 
-},{"./ElementTile":6,"./Elements":7,"angular":37}],9:[function(require,module,exports){
+},{"./ElementTile":7,"./Elements":8,"angular":37}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -182,29 +266,14 @@ module.exports = {
     }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('settings', require('./Settings'))
 ;
 
-},{"./Settings":9,"angular":37}],11:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-    templateUrl: 'view/create/sidebar/sidebar.html',
-    bindings: {
-        pages: '<'
-    },
-    controller: function() {
-        var viewModel = this;
-
-        viewModel.pages;
-    }
-};
-
-},{}],12:[function(require,module,exports){
+},{"./Settings":10,"angular":37}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -216,20 +285,24 @@ module.exports = {
      */
     templateUrl: 'view/create/sidebar/templates/sidebar-page.html',
     bindings: {
-        template: '<',
-        addTemplate: '&',
-        removeTemplate: '&'
+        addTemplate: '<',
+        removeTemplate: '<',
+        editPage: '<',
+        template: '<', // @TODO: Rename to page.
+        editingPage: '<'
     },
     controller: function($scope, PageResource) {
         var viewModel = this;
 
         // Data and functions brought in from bindings, available to the view.
         viewModel.addTemplate;
+        viewModel.removeTemplate;
+        viewModel.editPage;
         viewModel.template;
+        viewModel.editingPage;
 
         // Data available to the view.
         viewModel.saved = !!viewModel.template.id;
-        viewModel.active = false;
         viewModel.triggerEdit = false;
         viewModel.editing = false;
         viewModel.deleteHovering = false;
@@ -239,6 +312,7 @@ module.exports = {
         viewModel.submit = submit;
         viewModel.remove = remove;
         viewModel.onTileClick = onTileClick;
+        viewModel.isEditing = isEditing;
 
         // Register watches.
         $scope.$watch('$ctrl.template.name', onNameChange);
@@ -248,25 +322,35 @@ module.exports = {
          *
          * Note: There are specific handlers for the buttons within the tile.
          */
-        function onTileClick() {
-            if (viewModel.saved) {
-                // Saved template titles are only editable by clicking on the edit icon.
+        function onTileClick($event) {
+            if (viewModel.editing) {
+                // If the tile is already being edited, then do nothing.
                 return;
             }
 
-            // Clicking anywhere on the new template tile enables editing of the title.
-            edit();
+            if (viewModel.saved) {
+                // Clicking on a saved tile opens it for viewing.
+                viewModel.editPage(viewModel.template);
+
+                return;
+            }
+
+            // Clicking anywhere on a new template tile enables editing of the title.
+            edit($event);
         }
 
         /**
          * Enable Editing and Focus on Title Input
          */
-        function edit() {
+        function edit($event) {
             viewModel.editing = true;
 
             // This boolean is being watched by a FocusOn directive in the title input.
             // If set to true, the input gains focus, and this boolean is set back to false.
             viewModel.triggerEdit = true;
+
+            // Don't let the click bubble to the entire tile.
+            $event.stopPropagation();
         }
 
         /**
@@ -291,22 +375,25 @@ module.exports = {
             // Persist the document to the server.
             PageResource.save(viewModel.template).$promise.then(function (success) {
                 // Bring in the ID and other server-generated properties.
-                _.assign(viewModel.pages, success.data);
+                _.assign(viewModel.template, success.data);
             });
 
             // Tell parent component that a new template has been added.
-            viewModel.addTemplate();
+            viewModel.addTemplate(viewModel.template);
         }
 
         /**
          * Delete this template.
          */
-        function remove() {
+        function remove($event) {
             PageResource.remove(viewModel.template);
 
             // Tell parent component that this template was deleted.
             // The parent already has a reference to the template object, and doesn't need to be passed in.
-            viewModel.removeTemplate();
+            viewModel.removeTemplate(viewModel.template);
+
+            // Don't let the click bubble to the entire tile.
+            $event.stopPropagation();
         }
 
         /**
@@ -321,6 +408,18 @@ module.exports = {
 
             PageResource.put(viewModel.template);
         }
+
+        /**
+         * Check if Page is Being Edited
+         *
+         * Used to apply CSS styles to button repeat.
+         *
+         * @param page
+         * @returns {boolean}
+         */
+        function isEditing() {
+            return viewModel.template === viewModel.editingPage;
+        }
     }
 };
 
@@ -328,24 +427,45 @@ module.exports = {
 'use strict';
 
 module.exports = {
+    /**
+     * Edit Templates Sidebar
+     *
+     * This will not be instantiated by the parent component until the pages have been loaded.
+     * Pages array is guaranteed at this point.
+     */
     templateUrl: 'view/create/sidebar/templates/templates.html',
     bindings: {
-        pages: '<'
+        pages: '<',
+        editPage: '<',
+        getEditingPage: '<'
     },
     controller: function () {
         var viewModel = this;
 
         viewModel.pages;
+        viewModel.editPage;
+        viewModel.getEditingPage;
 
-        viewModel.addTemplate = addTemplate;
+        viewModel.pageAdded = pageAdded;
         viewModel.removeTemplate = removeTemplate;
+
+        if (viewModel.pages.length) {
+        }
 
         appendBlankTemplate();
 
         /**
-         * Called by Child Component after Adding a Template
+         * Call after Adding a Page
+         *
+         * @param page
          */
-        function addTemplate() {
+        function pageAdded(page) {
+            if (viewModel.pages.length === 1) {
+                // If this is the first page being added, then open it for editing.
+                viewModel.editPage(page);
+            }
+
+            // Add another placeholder.
             appendBlankTemplate();
         }
 
@@ -379,14 +499,13 @@ require('angular').module('app')
 'use strict';
 
 require('angular').module('app')
-    .component('sidebar', require('./Sidebar'))
 ;
 
 require('./Elements');
 require('./Settings');
 require('./Templates');
 
-},{"./Elements":8,"./Settings":10,"./Sidebar":11,"./Templates":14,"angular":37}],16:[function(require,module,exports){
+},{"./Elements":9,"./Settings":11,"./Templates":14,"angular":37}],16:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -396,7 +515,7 @@ require('angular').module('app')
 require('./Editor');
 require('./Sidebar');
 
-},{"./Create":3,"./Editor":5,"./Sidebar":15,"angular":37}],17:[function(require,module,exports){
+},{"./Create":3,"./Editor":6,"./Sidebar":15,"angular":37}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = {
