@@ -5,6 +5,7 @@ module.exports = function ($http, $location, $q, $rootScope, API_URL) {
 
     var API_KEY_STORAGE_KEY = 'k';
     var API_KEY_URL_PARAM = 'key';
+    var LOGIN_URL = '/login/google';
 
     var storage = localStorage;
     var key = null;
@@ -70,7 +71,7 @@ module.exports = function ($http, $location, $q, $rootScope, API_URL) {
      * Redirect User to Google OAuth Process
      */
     function login() {
-        $http.get(API_URL + '/google-login').then(function (success) {
+        $http.get(API_URL + LOGIN_URL).then(function (success) {
             window.location = success.data.data;
         });
     };

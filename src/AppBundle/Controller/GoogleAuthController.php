@@ -62,6 +62,7 @@ class GoogleAuthController extends Controller
             'response_type' => 'code',
             'redirect_uri' => $this->generateTokenRedirectUrl(),
         ];
+
         $url = self::GOOGLE_AUTH_ENDPOINT . '?' . http_build_query($queryData);
 
         return $url;
