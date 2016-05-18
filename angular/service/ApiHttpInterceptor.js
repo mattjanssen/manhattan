@@ -7,12 +7,12 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
      *
      * @link https://docs.angularjs.org/api/ng/service/$http
      */
-    var service = {};
+    var ApiHttpInterceptor = {};
 
-    service.request = request;
-    service.responseError = responseError;
+    ApiHttpInterceptor.request = request;
+    ApiHttpInterceptor.responseError = responseError;
 
-    return service;
+    return ApiHttpInterceptor;
 
     /**
      * Intercept Requests
@@ -33,33 +33,21 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
         var authenticationService = $injector.get('AuthenticationService');
 
         // Either the user must be authenticated, or the endpoint must allow anonymous use.
-        // @TODO Re-wire.
-        if (true || config.allowAnonymous || authenticationService.isLoggedIn()) {
-            // For API requests check to see we have credentials.
-            var jwt = authenticationService.getJwt();
-
-            // Authentication is already present. Continue with request.
-            addJwtHeaderToConfig(config, jwt);
-
-            return config;
+        if (!config.allowAnonymous && !authenticationService.isLoggedIn()) {
+            // We're requesting an API endpoint without first being logged in.
+            return $q.reject({
+                status: 401,
+                config: config
+            });
         }
 
-        // We're requesting an API endpoint without first being logged in. Either we can authenticate using
-        // stored credentials, or we'll have to fail this request.
-        return $q(function (resolve, reject) {
-            authenticationService.reloadCredentials().then(function () {
-                // For API requests check to see we have credentials.
-                var jwt = authenticationService.getJwt();
+        // For API requests check to see we have credentials.
+        var key = authenticationService.getKey();
 
-                // The stored credentials were valid. Continue with request.
-                addJwtHeaderToConfig(config, jwt);
+        // Authentication is already present. Continue with request.
+        addKeyHeaderToConfig(config, key);
 
-                resolve(config);
-            }).catch(function () {
-                // The stored credentials were not valid. Fail the request.
-                reject($q.reject());
-            });
-        });
+        return config;
     };
 
     /**
@@ -75,22 +63,13 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
         }
 
         if (rejection.status === 401) {
-            // The credentials used on the request were not valid. The JWT may have expired.
-            // Attempt to reload credentials.
-            return $q(function (resolve, reject) {
-                // Avoid the circular dependency by run-time injection.
-                var authenticationService = $injector.get('AuthenticationService');
+            // Avoid the circular dependency by run-time injection.
+            var authenticationService = $injector.get('AuthenticationService');
 
-                authenticationService.reloadCredentials().then(function () {
-                    // Credentials reload was successful. Retry the request.
-                    // @TODO Recreate the request promise.
-                    debugger;
-                }).catch(function () {
-                    // Stored credentials were not valid. Fail the request.
-                    debugger;
-                    reject(rejection);
-                });
-            });
+            // User is not authenticated. Force logout.
+            authenticationService.logout();
+
+            return rejection;
         }
 
         if (rejection.status === 500) {
@@ -107,16 +86,13 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
     }
 
     /**
-     * Attache Current JWT to Request Config
-     *
-     * Do NOT cache this JWT header or token as it may change during an asynchronous authentication request.
+     * Attache Current API Key to Request Config
      *
      * @param config
      */
-    function addJwtHeaderToConfig(config, jwt) {
+    function addKeyHeaderToConfig(config, key) {
 
-        // Add the JWT to a modified HTTP Basic authentication header.
-        // https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#2-use-the-token
-        config.headers['Authorization'] = 'Bearer ' + jwt;
+        // Add the API Key to a modified HTTP Basic authentication header.
+        config.headers['Authorization'] = 'Bearer ' + key;
     }
 };

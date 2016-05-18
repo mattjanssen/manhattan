@@ -5,7 +5,7 @@ namespace AppBundle\Repository;
 use Doctrine\ODM\MongoDB\DocumentRepository;
 
 /**
- * Page Document Repsitory
+ * Page Document Repository
  */
 class PageRepository extends DocumentRepository
 {

@@ -1,8 +1,10 @@
 <?php
 
-namespace AppBundle\Document;
+namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 
 /**
@@ -10,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  */
-class User implements \JsonSerializable
+class User implements \JsonSerializable, UserInterface
 {
     /**
      * Identifier
@@ -24,13 +26,24 @@ class User implements \JsonSerializable
     private $id;
 
     /**
-     * Contact Title
+     * Unique ID from OAuth Provider
      *
-     * @ORM\Column()
+     * Should be prefixed with service-specific prefix to avoid collisions between providers.
+     *
+     * @ORM\Column(unique=true, nullable=true)
      *
      * @var string
      */
-    private $title;
+    private $oauthId;
+
+    /**
+     * Unique Secret API Key
+     *
+     * @ORM\Column(unique=true)
+     *
+     * @var string
+     */
+    private $apiKey;
 
     /**
      * {@inheritdoc}
@@ -39,7 +52,7 @@ class User implements \JsonSerializable
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'oauthId' => $this->oauthId,
         ];
     }
 
@@ -54,16 +67,65 @@ class User implements \JsonSerializable
     /**
      * @return string
      */
-    public function getName()
+    public function getOauthId()
     {
-        return $this->name;
+        return $this->oauthId;
     }
 
     /**
-     * @param string $name
+     * @param string $oauthId
+     *
+     * @return $this
      */
-    public function setName($name)
+    public function setOauthId($oauthId)
     {
-        $this->name = $name;
+        $this->oauthId = $oauthId;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
+    }
+
+    /**
+     * @param string $apiKey
+     *
+     * @return $this
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+
+        return $this;
+    }
+
+    public function getRoles()
+    {
+        return [];
+    }
+
+    public function getPassword()
+    {
+        return '';
+    }
+
+    public function getSalt()
+    {
+        // TODO: Implement getSalt() method.
+    }
+
+    public function getUsername()
+    {
+        // TODO: Implement getUsername() method.
+    }
+
+    public function eraseCredentials()
+    {
+        // TODO: Implement eraseCredentials() method.
     }
 }

@@ -3,8 +3,8 @@
 namespace AppBundle\Controller\Api;
 
 use AppBundle\Document\Page;
+use AppBundle\Repository\PageRepository;
 use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\Common\Persistence\ObjectRepository;
 use JMS\DiExtraBundle\Annotation\Inject;
 use MattJanssen\ApiResponseBundle\Exception\ApiFormException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -21,7 +21,7 @@ class PageController extends Controller
     /**
      * @Inject("app.repository.page")
      *
-     * @var ObjectRepository
+     * @var PageRepository
      */
     private $pageRepository;
 

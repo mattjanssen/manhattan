@@ -40,10 +40,31 @@ require('angular').module('app', [
             });
     })
     .run(function (
-        $http,
         $rootScope,
-        $state
+        $state,
+        AuthenticationService
     ) {
+        $rootScope.$on('authentication.logout', handleLogout);
+
+        $rootScope.$on('$stateChangeStart', watchPageChange);
+
+        function handleLogout() {
+            $state.go('home');
+        };
+
+        // Enforce route access based on authentication status.
+        function watchPageChange(event, toState, toParams, fromState, fromParams) {
+            if (fromState.abstract) {
+                // The initial page can happen before auth. Don't force a redirect until auth in complete.
+                return;
+            }
+
+            if (!AuthenticationService.isLoggedIn() && toState.name !== 'home') {
+                // User tried to navigate to page that requires auth before logging in.
+                event.preventDefault();
+                handleLogout();
+            }
+        }
     })
 ;
 

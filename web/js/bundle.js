@@ -42,10 +42,31 @@ require('angular').module('app', [
             });
     })
     .run(function (
-        $http,
         $rootScope,
-        $state
+        $state,
+        AuthenticationService
     ) {
+        $rootScope.$on('authentication.logout', handleLogout);
+
+        $rootScope.$on('$stateChangeStart', watchPageChange);
+
+        function handleLogout() {
+            $state.go('home');
+        };
+
+        // Enforce route access based on authentication status.
+        function watchPageChange(event, toState, toParams, fromState, fromParams) {
+            if (fromState.abstract) {
+                // The initial page can happen before auth. Don't force a redirect until auth in complete.
+                return;
+            }
+
+            if (!AuthenticationService.isLoggedIn() && toState.name !== 'home') {
+                // User tried to navigate to page that requires auth before logging in.
+                event.preventDefault();
+                handleLogout();
+            }
+        }
     })
 ;
 
@@ -249,7 +270,7 @@ module.exports = {
         var viewModel = this;
 
         // Add one empty template.
-        viewModel.templates = null;
+        viewModel.templates = [];
 
         viewModel.addTemplate = addTemplate;
         viewModel.removeTemplate = removeTemplate;
@@ -317,8 +338,10 @@ require('./Sidebar');
 
 module.exports = {
     templateUrl: 'view/home/home.html',
-    controller: function() {
+    controller: function(AuthenticationService) {
         var viewModel = this;
+
+        viewModel.login = AuthenticationService.login;
     }
 };
 
@@ -334,10 +357,12 @@ require('angular').module('app')
 
 module.exports = {
     templateUrl: 'view/page/header.html',
-    controller: function($state) {
+    controller: function($state, AuthenticationService) {
         var viewModel = this;
 
         viewModel.isPage = isPage;
+        viewModel.login = AuthenticationService.login;
+        viewModel.logout = AuthenticationService.logout;
 
         function isPage(page) {
             return $state.current.name === page;
@@ -97396,12 +97421,12 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
      *
      * @link https://docs.angularjs.org/api/ng/service/$http
      */
-    var service = {};
+    var ApiHttpInterceptor = {};
 
-    service.request = request;
-    service.responseError = responseError;
+    ApiHttpInterceptor.request = request;
+    ApiHttpInterceptor.responseError = responseError;
 
-    return service;
+    return ApiHttpInterceptor;
 
     /**
      * Intercept Requests
@@ -97422,33 +97447,21 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
         var authenticationService = $injector.get('AuthenticationService');
 
         // Either the user must be authenticated, or the endpoint must allow anonymous use.
-        // @TODO Re-wire.
-        if (true || config.allowAnonymous || authenticationService.isLoggedIn()) {
-            // For API requests check to see we have credentials.
-            var jwt = authenticationService.getJwt();
-
-            // Authentication is already present. Continue with request.
-            addJwtHeaderToConfig(config, jwt);
-
-            return config;
+        if (!config.allowAnonymous && !authenticationService.isLoggedIn()) {
+            // We're requesting an API endpoint without first being logged in.
+            return $q.reject({
+                status: 401,
+                config: config
+            });
         }
 
-        // We're requesting an API endpoint without first being logged in. Either we can authenticate using
-        // stored credentials, or we'll have to fail this request.
-        return $q(function (resolve, reject) {
-            authenticationService.reloadCredentials().then(function () {
-                // For API requests check to see we have credentials.
-                var jwt = authenticationService.getJwt();
+        // For API requests check to see we have credentials.
+        var key = authenticationService.getKey();
 
-                // The stored credentials were valid. Continue with request.
-                addJwtHeaderToConfig(config, jwt);
+        // Authentication is already present. Continue with request.
+        addKeyHeaderToConfig(config, key);
 
-                resolve(config);
-            }).catch(function () {
-                // The stored credentials were not valid. Fail the request.
-                reject($q.reject());
-            });
-        });
+        return config;
     };
 
     /**
@@ -97464,22 +97477,13 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
         }
 
         if (rejection.status === 401) {
-            // The credentials used on the request were not valid. The JWT may have expired.
-            // Attempt to reload credentials.
-            return $q(function (resolve, reject) {
-                // Avoid the circular dependency by run-time injection.
-                var authenticationService = $injector.get('AuthenticationService');
+            // Avoid the circular dependency by run-time injection.
+            var authenticationService = $injector.get('AuthenticationService');
 
-                authenticationService.reloadCredentials().then(function () {
-                    // Credentials reload was successful. Retry the request.
-                    // @TODO Recreate the request promise.
-                    debugger;
-                }).catch(function () {
-                    // Stored credentials were not valid. Fail the request.
-                    debugger;
-                    reject(rejection);
-                });
-            });
+            // User is not authenticated. Force logout.
+            authenticationService.logout();
+
+            return rejection;
         }
 
         if (rejection.status === 500) {
@@ -97496,17 +97500,14 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
     }
 
     /**
-     * Attache Current JWT to Request Config
-     *
-     * Do NOT cache this JWT header or token as it may change during an asynchronous authentication request.
+     * Attache Current API Key to Request Config
      *
      * @param config
      */
-    function addJwtHeaderToConfig(config, jwt) {
+    function addKeyHeaderToConfig(config, key) {
 
-        // Add the JWT to a modified HTTP Basic authentication header.
-        // https://github.com/lexik/LexikJWTAuthenticationBundle/blob/master/Resources/doc/index.md#2-use-the-token
-        config.headers['Authorization'] = 'Bearer ' + jwt;
+        // Add the API Key to a modified HTTP Basic authentication header.
+        config.headers['Authorization'] = 'Bearer ' + key;
     }
 };
 
@@ -97547,64 +97548,61 @@ module.exports = function ($resource) {
 },{}],54:[function(require,module,exports){
 'use strict';
 
-module.exports = function ($http, $q, $rootScope, API_URL) {
+module.exports = function ($http, $location, $q, $rootScope, API_URL) {
     var AuthenticationService = {};
 
-    var KEY_USERNAME = 'u';
-    var KEY_PASSWORD = 'p';
+    var API_KEY_STORAGE_KEY = 'k';
+    var API_KEY_URL_PARAM = 'key';
 
     var storage = localStorage;
-    var jwt = null;
-    var reloadingPromise = null;
+    var key = null;
 
-    AuthenticationService.reloadCredentials = reloadCredentials;
-    AuthenticationService.getJwt = getJwt;
+    loadCredentials();
+
+    AuthenticationService.getKey = getKey;
     AuthenticationService.isLoggedIn = isLoggedIn;
     AuthenticationService.login = login;
     AuthenticationService.logout = logout;
 
+    // Register this function globally to use in templates.
+    // Inside components, access it using $root.isLoggedIn().
+    $rootScope.isLoggedIn = isLoggedIn;
+
     return AuthenticationService;
 
     /**
-     * Get new JWT from Server
-     *
-     * The promise is rejected if credentials aren't stored in local storage, or they fail server validation.
+     * Check the URL Parameters or LocalStorage for an API Key
      *
      * @return Promise
      */
-    function reloadCredentials() {
-        if (reloadingPromise) {
-            // A reload is already in progress.
-            return reloadingPromise;
+    function loadCredentials() {
+        key = $location.search()[API_KEY_URL_PARAM];
+
+        if (key) {
+            // Save the API key from the URL in storage.
+            storage.setItem(API_KEY_STORAGE_KEY, key);
+
+            // Remove the key from the URL and browser history.
+            $location.search(API_KEY_URL_PARAM, null);
+            $location.replace();
+        } else {
+            // Try to get the key from storage.
+            key = storage.getItem(API_KEY_STORAGE_KEY);
         }
 
-        var username = storage.getItem(KEY_USERNAME);
-        var password = storage.getItem(KEY_PASSWORD);
-
-        if (!username || !password) {
+        if (!key) {
             // Credentials are missing. Enforce a logged-out state.
-            logout();
-
             return $q.reject();
         }
-
-        reloadingPromise = login(username, password);
-
-        reloadingPromise.finally(function () {
-            // Clear the promise cache so the next call re-triggers a new authentication attempt.
-            reloadingPromise = null;
-        });
-
-        return reloadingPromise;
     }
 
     /**
-     * Get the JWT
+     * Get the User's API Key
      *
      * @return string
      */
-    function getJwt() {
-        return jwt;
+    function getKey() {
+        return key;
     }
 
     /**
@@ -97613,49 +97611,15 @@ module.exports = function ($http, $q, $rootScope, API_URL) {
      * @return boolean
      */
     function isLoggedIn() {
-        return !!jwt;
+        return !!key;
     };
 
     /**
-     * POST Credentials to Login URL and Store JWT
-     *
-     * @param string username
-     * @param string password
-     *
-     * @return Promise
+     * Redirect User to Google OAuth Process
      */
-    function login(username, password) {
-        // The login endpoint takes HTTP Basic auth. All other endpoints use JWT.
-        var postConfig = {
-            headers: {
-                Authorization: 'Basic ' + window.btoa(username + ':' + password)
-            }
-        };
-
-        return $q(function (resolve, reject) {
-            $http.post(API_URL + '/auth', null, postConfig).then(function (success) {
-                var oldJwt = jwt;
-
-                // Store the JWT in memory for future requests. This will be lost on page reload.
-                jwt = success.data.data;
-
-                // Store the credentials in local storage to renew the JWT after page reload or token timeout.
-                storage.setItem(KEY_USERNAME, username);
-                storage.setItem(KEY_PASSWORD, password);
-
-                if (!oldJwt) {
-                    // If there wasn't already a token, then this is a new login and not just a reload.
-                    console.log('authentication.login');
-                    $rootScope.$emit('authentication.login');
-                }
-
-                resolve();
-            }, function (failure) {
-                // Credentials failed. Force a fully-logged-out state.
-                logout();
-
-                reject();
-            });
+    function login() {
+        $http.get(API_URL + '/google-login').then(function (success) {
+            window.location = success.data.data;
         });
     };
 
@@ -97663,18 +97627,9 @@ module.exports = function ($http, $q, $rootScope, API_URL) {
      * Clear Credentials and Trigger Logout if Logged In
      */
     function logout() {
-        storage.removeItem(KEY_USERNAME);
-        storage.removeItem(KEY_PASSWORD);
+        storage.removeItem(API_KEY_STORAGE_KEY);
+        key = null;
 
-        if (!isLoggedIn()) {
-            // The user is not currently logged in.
-            return;
-        }
-
-        // The presence of a token indicates a logged-in state. Trigger logout.
-        jwt = null;
-
-        console.log('authentication.logout');
         $rootScope.$emit('authentication.logout');
     };
 };

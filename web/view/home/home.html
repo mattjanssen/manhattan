@@ -1,3 +1,16 @@
-<h1>Hello, San Francisco</h1>
+<div class="container container-content">
+    <div class="jumbotron">
+        <h1>Hello, San Francisco</h1>
 
-<a class="btn btn-primary" ui-sref="create">Create a Page</a>
+        <div ng-hide="$root.isLoggedIn()">
+            <p>To create a site, please log in using your Google account.</p>
+            <div type="button" class="btn-google-login" ng-click="$ctrl.login()"></div>
+        </div>
+
+
+        <div ng-show="$root.isLoggedIn()">
+            <p>Welcome!</p>
+            <a class="btn btn-primary" ui-sref="create">Create your Site</a>
+        </div>
+    </div>
+</div>

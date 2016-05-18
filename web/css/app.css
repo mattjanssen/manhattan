@@ -98,7 +98,27 @@ body {
     color: rgb(156, 179, 202);
 }
 
+.btn-google-login {
+    cursor: pointer;
+    display: inline-block;
+    background-image: url('/img/google_btn.png');
+    background-size: 100% auto;
+    width: 191px;
+    height: 46px;
+}
+
+.btn-google-login:focus {
+    background-image: url('/img/google_btn_focus.png');
+}
+
+.btn-google-login:active {
+    background-image: url('/img/google_btn_pressed.png');
+}
+
 /** Bootstrap overrides **/
+.container-content {
+    margin-top: 20px;
+}
 
 .navbar {
     min-height: 41px;
@@ -113,4 +133,12 @@ body {
 .navbar-brand {
     height: 29px;
     padding: 8px 0 0 32px;
+}
+
+.navbar-nav>li>a {
+    color: rgb(255, 255, 255);
+}
+
+.nav>li>a:focus, .nav>li>a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }

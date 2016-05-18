@@ -15,8 +15,10 @@ class SpaController extends Controller
     /**
      * Single Page App Entry Point
      *
+     * catchAll parameter used to catch all URLs.
+     *
      * @Method("GET")
-     * @Route("/{catchAll}", requirements={"catchAll" = ".*"})
+     * @Route("/{catchAll}", name="spa", requirements={"catchAll" = ".*"}, defaults={"catchAll" = ""})
      * @Template()
      */
     public function spaAction()

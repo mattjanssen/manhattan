@@ -6,7 +6,7 @@ module.exports = {
         var viewModel = this;
 
         // Add one empty template.
-        viewModel.templates = null;
+        viewModel.templates = [];
 
         viewModel.addTemplate = addTemplate;
         viewModel.removeTemplate = removeTemplate;
