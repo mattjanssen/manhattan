@@ -13,34 +13,36 @@ module.exports = {
         editPage: '<',
         getEditingPage: '<'
     },
-    controller: function () {
+    controller: function ($timeout) {
         var viewModel = this;
 
         viewModel.pages;
         viewModel.editPage;
         viewModel.getEditingPage;
 
-        viewModel.pageAdded = pageAdded;
+        viewModel.newPage = getBlankTemplate();
+
+        viewModel.addPage = addPage;
         viewModel.removeTemplate = removeTemplate;
-
-        if (viewModel.pages.length) {
-        }
-
-        appendBlankTemplate();
 
         /**
          * Call after Adding a Page
          *
          * @param page
          */
-        function pageAdded(page) {
+        function addPage() {
+            viewModel.pages.push(viewModel.newPage);
+
             if (viewModel.pages.length === 1) {
                 // If this is the first page being added, then open it for editing.
-                viewModel.editPage(page);
+                viewModel.editPage(viewModel.newPage);
             }
 
-            // Add another placeholder.
-            appendBlankTemplate();
+            // Reset the placeholder.
+            viewModel.newPage = null;
+            $timeout(function () {
+                viewModel.newPage = getBlankTemplate();
+            });
         }
 
         /**
@@ -51,12 +53,12 @@ module.exports = {
         }
 
         /**
-         * Add a Blank Template to the Bottom of the List
+         * Get a Blank Page
          */
-        function appendBlankTemplate() {
-            viewModel.pages.push({
+        function getBlankTemplate() {
+            return {
                 name: ''
-            });
+            };
         }
     }
 };

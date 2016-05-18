@@ -2,14 +2,13 @@
 
 module.exports = {
     /**
-     * Sidebar Template Bar
+     * New Template Bar
      *
-     * Handles existing templates.
+     * Handles new template creation.
      */
-    templateUrl: 'view/create/sidebar/templates/sidebar-page.html',
+    templateUrl: 'view/create/sidebar/templates/new-page.html',
     bindings: {
-        removeTemplate: '<',
-        editPage: '<',
+        addTemplate: '<',
         template: '<', // @TODO: Rename to page.
         editingPage: '<'
     },
@@ -17,24 +16,19 @@ module.exports = {
         var viewModel = this;
 
         // Data and functions brought in from bindings, available to the view.
-        viewModel.removeTemplate;
-        viewModel.editPage;
+        viewModel.addTemplate;
         viewModel.template;
         viewModel.editingPage;
 
         // Data available to the view.
+        viewModel.saved = !!viewModel.template.id;
         viewModel.triggerEdit = false;
         viewModel.editing = false;
         viewModel.deleteHovering = false;
 
         // Functions available to the view.
-        viewModel.edit = edit;
-        viewModel.remove = remove;
+        viewModel.submit = submit;
         viewModel.onTileClick = onTileClick;
-        viewModel.isEditing = isEditing;
-
-        // Register watches.
-        $scope.$watch('$ctrl.template.name', onNameChange);
 
         /**
          * Handle General Clicks on the Template Tile
@@ -47,8 +41,8 @@ module.exports = {
                 return;
             }
 
-            // Clicking on a tile opens it for viewing.
-            viewModel.editPage(viewModel.template);
+            // Clicking anywhere on a new template tile enables editing of the title.
+            edit($event);
         }
 
         /**
@@ -66,42 +60,32 @@ module.exports = {
         }
 
         /**
-         * Delete this template.
+         * Submit a New Template
          */
-        function remove($event) {
-            PageResource.remove(viewModel.template);
-
-            // Tell parent component that this template was deleted.
-            // The parent already has a reference to the template object, and doesn't need to be passed in.
-            viewModel.removeTemplate(viewModel.template);
-
-            // Don't let the click bubble to the entire tile.
-            $event.stopPropagation();
-        }
-
-        /**
-         * Handle Changes to the Name
-         *
-         * @param template
-         */
-        function onNameChange() {
-            if (!viewModel.template.id) {
+        function submit() {
+            if (viewModel.saved) {
+                // Only new templates can be submitted.
                 return;
             }
 
-            PageResource.put(viewModel.template);
-        }
+            if (viewModel.template.name.length === 0) {
+                // Clicking on the submit icon should trigger an edit if a title hasn't been entered.
+                edit();
 
-        /**
-         * Check if Page is Being Edited
-         *
-         * Used to apply CSS styles to button repeat.
-         *
-         * @param page
-         * @returns {boolean}
-         */
-        function isEditing() {
-            return viewModel.template === viewModel.editingPage;
+                return;
+            }
+
+            viewModel.saved = true;
+            viewModel.editing = false;
+
+            // Persist the document to the server.
+            PageResource.save(viewModel.template).$promise.then(function (success) {
+                // Bring in the ID and other server-generated properties.
+                _.assign(viewModel.template, success.data);
+            });
+
+            // Tell parent component that this page has been added.
+            viewModel.addTemplate();
         }
     }
 };

@@ -19,6 +19,15 @@ module.exports = {
                 return;
             }
 
+            if (!_.includes(newArray.length, editingPage)) {
+                // The page being edited has been removed.
+                if (newArray.length) {
+                    editingPage = newArray[0];
+                } else {
+                    editingPage = null;
+                }
+            }
+
             console.log(newArray, oldArray);
         });
 
@@ -51,12 +60,11 @@ module.exports = {
          */
         function editPage(page) {
             editingPage = page;
-            $scope.$broadcast('page.edit', page);
         }
 
         /**
          * Get Page Being Edited
-         * 
+         *
          * @returns page
          */
         function getEditingPage() {

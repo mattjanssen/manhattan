@@ -1,0 +1,13 @@
+<div class="create-template-page create-template-page_new" ng-click="$ctrl.onTileClick($event)">
+    <form ng-submit="$ctrl.submit()">
+        <div class="pull-right">
+            <button type="submit" class="btn btn-link btn-input-link">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true">
+                    <span class="sr-only">Add Page</span>
+                </span>
+            </button>
+        </div>
+
+        <input type="text" class="create-template-page-name" placeholder="ADD NEW PAGE" ng-model="$ctrl.template.name" ng-disabled="!$ctrl.editing" focus-on="$ctrl.triggerEdit" ng-blur="$ctrl.editing = false"  ng-keyup="$event.keyCode === 13 && ($ctrl.editing = false)" />
+    </form>
+</div>

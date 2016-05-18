@@ -1,6 +1,10 @@
 <div class="page-editor">
+    <div ng-show="$ctrl.pages.length === 0">
+        To build your site, start by adding a page using the tools to the left!
+    </div>
+
     <div>
-        <button class="btn btn-page" ng-class="{'btn-info': $ctrl.isEditing(page), 'btn-default': !$ctrl.isEditing(page)}" ng-repeat="page in $ctrl.pages" ng-if="page.id" ng-click="$ctrl.editPage(page)">{{ page.name }}</button>
+        <button class="btn btn-page" ng-repeat="page in $ctrl.pages" ng-if="page.id" ng-class="{'btn-info': $ctrl.isEditing(page), 'btn-default': !$ctrl.isEditing(page)}" ng-click="$ctrl.editPage(page)">{{ page.name }}</button>
     </div>
 
     <div>

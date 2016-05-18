@@ -1,1 +1,7 @@
-Editing: {{ $ctrl.page.name }}
+<div ng-if="$ctrl.page">
+    <div ng-if="!$ctrl.page.rows.length">Drag elements from the left bar to create your page.</div>
+
+    <new-row row="$ctrl.newRow"></new-row>
+
+    <row ng-repeat="row in $ctrl.page.rows" row="row"></row>
+</div>
