@@ -11,31 +11,39 @@ body {
 
 .create-sidebar {
     float: left;
-    width: 252px;
+    position: absolute;
+    top: 40px;
+    bottom: 0;
+    width: 235px;
     background-color: rgb(44, 62, 80);
 }
 
 .create-sidebar-header {
-    height: 32px;
-    padding-top: 7px;
+    height: 36px;
+    padding: 7px 8px 0 0;
     text-align: center;
     color: rgb(156, 179, 202);
     background-color: rgb(79, 101, 123);
+    border-top: 2px solid rgb(26, 39, 51);
     border-bottom: 2px solid rgb(26, 39, 51);
 }
 
 .create-sidebar-body {
-    padding: 25px 32px 22px;
+    padding: 24px 32px 13px;
+}
+
+.create-sidebar-body_tight {
+    padding: 0;
 }
 
 .create-template-page {
     height: 34px;
     padding: 0 8px;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
     background-color: rgb(79, 101, 123);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 5px;
-    box-shadow: 0px 2px 0px 0px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2);
     cursor: pointer;
 }
 
@@ -53,8 +61,8 @@ body {
 }
 
 .create-template-page-name {
-    width: 116px;
-    padding: 8px 0 8px 4px;
+    width: 112px;
+    padding: 7px 0 8px 7px;
     color: rgb(255, 255, 255);
     background: none;
     border: none;
@@ -76,7 +84,7 @@ body {
 }
 
 .btn-input-link {
-    padding: 7px 4px 3px;
+    padding: 7px 1px 3px;
     color: transparent;
 }
 
@@ -101,18 +109,52 @@ body {
 .btn-google-login {
     cursor: pointer;
     display: inline-block;
-    background-image: url('/img/google_btn.png');
+    background-image: url('/img/google-btn.png');
     background-size: 100% auto;
     width: 191px;
     height: 46px;
 }
 
 .btn-google-login:focus {
-    background-image: url('/img/google_btn_focus.png');
+    background-image: url('/img/google-btn-focus.png');
 }
 
 .btn-google-login:active {
-    background-image: url('/img/google_btn_pressed.png');
+    background-image: url('/img/google-btn-pressed.png');
+}
+
+.element-tile {
+    float: left;
+    width: 50%;
+    height: 109px;
+    cursor: move;
+    border-top: 1px solid rgb(72, 90, 108);
+    border-left: 1px solid rgb(72, 90, 108);
+    border-right: 2px solid rgb(33, 49, 63);
+    border-bottom: 2px solid rgb(33, 49, 63);
+    text-align: center;
+}
+
+.element-tile:hover {
+    background-color: rgb(60, 80, 100);
+}
+
+.element-tile-icon {
+    width: 52px;
+    height: 54px;
+    margin: 19px auto 0;
+    background-size: 100% auto;
+    border-radius: 3px;
+    box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2);
+}
+
+.element-tile-icon_title {
+    background-image: url('/img/element-tile-title.png');
+}
+
+.element-tile-name {
+    margin-top: 6px;
+    color: rgb(94, 118, 142);
 }
 
 /** Bootstrap overrides **/
@@ -121,18 +163,19 @@ body {
 }
 
 .navbar {
+    height: 41px;
     min-height: 41px;
     margin-bottom: 0;
 }
 
 .navbar-manhattan {
     background-color: rgb(81, 141, 202);
-    box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 1);
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 1);
 }
 
 .navbar-brand {
     height: 29px;
-    padding: 8px 0 0 32px;
+    padding: 6px 0 0 30px;
 }
 
 .navbar-nav>li>a {
