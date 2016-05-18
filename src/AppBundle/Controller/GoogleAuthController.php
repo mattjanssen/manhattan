@@ -50,7 +50,7 @@ class GoogleAuthController extends Controller
      * Redirect to Google Login and Authorization
      *
      * @Method("GET")
-     * @Route("/api/google-login")
+     * @Route("/api/login/google")
      *
      * @return string
      */

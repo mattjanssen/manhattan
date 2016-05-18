@@ -4,14 +4,27 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory:
-            memory: ~
+        app_user_provider:
+            entity:
+                class: AppBundle\Entity\User
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
+        login_api:
+            pattern: ^/api/login/
+            security: false
+
+        api:
+            pattern: ^/api/
+            anonymous: false
+            logout: false
+            guard:
+                authenticators:
+                    - app.api_auth
 
         main:
             anonymous: ~
@@ -22,8 +35,3 @@ security:
 
             # form_login: ~
             # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
-
-    providers:
-        app_user_provider:
-            entity:
-                class: AppBundle:User

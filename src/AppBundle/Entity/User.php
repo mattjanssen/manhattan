@@ -104,28 +104,42 @@ class User implements \JsonSerializable, UserInterface
         return $this;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getRoles()
     {
         return [];
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getPassword()
     {
         return '';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getSalt()
     {
-        // TODO: Implement getSalt() method.
+        return '';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getUsername()
     {
-        // TODO: Implement getUsername() method.
+        return '';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function eraseCredentials()
     {
-        // TODO: Implement eraseCredentials() method.
     }
 }

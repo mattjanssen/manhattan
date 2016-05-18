@@ -1,4 +1,8 @@
 services:
+    app.api_auth:
+        class: AppBundle\Authentication\ApiAuthenticator
+        arguments: [ '@app.repository.user' ]
+
     app.repository.user:
         class: AppBundle\Repository\UserRepository
         factory: [ "@doctrine.orm.default_entity_manager", getRepository ]
