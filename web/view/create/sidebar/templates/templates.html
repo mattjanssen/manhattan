@@ -1,5 +1,5 @@
 <div class="create-sidebar-header">Templates</div>
 
 <div class="create-sidebar-body">
-    <create-sidebar-page ng-repeat="template in $ctrl.templates" template="template" add-template="$ctrl.addTemplate()" remove-template="$ctrl.removeTemplate(template)"></create-sidebar-page>
+    <sidebar-page ng-repeat="page in $ctrl.pages" template="page" add-template="$ctrl.addTemplate()" remove-template="$ctrl.removeTemplate(template)"></sidebar-page>
 </div>

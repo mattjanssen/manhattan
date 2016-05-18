@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    templateUrl: 'view/create/sidebar/elements/list-elements.html',
+    templateUrl: 'view/create/sidebar/elements/elements.html',
     controller: function () {
         var viewModel = this;
     }

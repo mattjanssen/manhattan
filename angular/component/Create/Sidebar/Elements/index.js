@@ -1,6 +1,6 @@
 'use strict';
 
 require('angular').module('app')
-    .component('createTemplates', require('./CreateTemplates'))
-    .component('createSidebarPage', require('./CreateSidebarPage'))
+    .component('elementTile', require('./ElementTile'))
+    .component('elements', require('./Elements'))
 ;

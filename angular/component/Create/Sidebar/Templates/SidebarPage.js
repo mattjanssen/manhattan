@@ -7,7 +7,7 @@ module.exports = {
      * Handles the new and existing states of the templates.
      * Allows for creating and editing of templates.
      */
-    templateUrl: 'view/create/sidebar/templates/create-sidebar-page.html',
+    templateUrl: 'view/create/sidebar/templates/sidebar-page.html',
     bindings: {
         template: '<',
         addTemplate: '&',
@@ -84,7 +84,7 @@ module.exports = {
             // Persist the document to the server.
             PageResource.save(viewModel.template).$promise.then(function (success) {
                 // Bring in the ID and other server-generated properties.
-                _.assign(viewModel.templates, success.data);
+                _.assign(viewModel.pages, success.data);
             });
 
             // Tell parent component that a new template has been added.

@@ -109,8 +109,21 @@ require('angular').module('app')
 
 module.exports = {
     templateUrl: 'view/create/create.html',
-    controller: function() {
+    controller: function($timeout, PageResource) {
         var viewModel = this;
+
+        viewModel.pages = null;
+
+        viewModel.isInitd = isInitd;
+
+        // Populate the existing templates list.
+        PageResource.query().$promise.then(function (success) {
+            viewModel.pages = success.data;
+        });
+
+        function isInitd() {
+            return !!viewModel.pages;
+        }
     }
 };
 
@@ -135,13 +148,73 @@ require('angular').module('app')
 'use strict';
 
 module.exports = {
+    templateUrl: 'view/create/sidebar/elements/element-tile.html',
+    controller: function () {
+        var viewModel = this;
+    }
+};
+
+},{}],7:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+    templateUrl: 'view/create/sidebar/elements/elements.html',
+    controller: function () {
+        var viewModel = this;
+    }
+};
+
+},{}],8:[function(require,module,exports){
+'use strict';
+
+require('angular').module('app')
+    .component('elementTile', require('./ElementTile'))
+    .component('elements', require('./Elements'))
+;
+
+},{"./ElementTile":6,"./Elements":7,"angular":37}],9:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+    templateUrl: 'view/create/sidebar/settings/settings.html',
+    controller: function () {
+        var viewModel = this;
+    }
+};
+
+},{}],10:[function(require,module,exports){
+'use strict';
+
+require('angular').module('app')
+    .component('settings', require('./Settings'))
+;
+
+},{"./Settings":9,"angular":37}],11:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+    templateUrl: 'view/create/sidebar/sidebar.html',
+    bindings: {
+        pages: '<'
+    },
+    controller: function() {
+        var viewModel = this;
+
+        viewModel.pages;
+    }
+};
+
+},{}],12:[function(require,module,exports){
+'use strict';
+
+module.exports = {
     /**
      * Sidebar Template Bar
      *
      * Handles the new and existing states of the templates.
      * Allows for creating and editing of templates.
      */
-    templateUrl: 'view/create/sidebar/templates/create-sidebar-page.html',
+    templateUrl: 'view/create/sidebar/templates/sidebar-page.html',
     bindings: {
         template: '<',
         addTemplate: '&',
@@ -218,7 +291,7 @@ module.exports = {
             // Persist the document to the server.
             PageResource.save(viewModel.template).$promise.then(function (success) {
                 // Bring in the ID and other server-generated properties.
-                _.assign(viewModel.templates, success.data);
+                _.assign(viewModel.pages, success.data);
             });
 
             // Tell parent component that a new template has been added.
@@ -251,25 +324,23 @@ module.exports = {
     }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = {
     templateUrl: 'view/create/sidebar/templates/templates.html',
-    controller: function (PageResource) {
+    bindings: {
+        pages: '<'
+    },
+    controller: function () {
         var viewModel = this;
 
-        // Add one empty template.
-        viewModel.templates = [];
+        viewModel.pages;
 
         viewModel.addTemplate = addTemplate;
         viewModel.removeTemplate = removeTemplate;
 
-        // Populate the existing templates list.
-        PageResource.query().$promise.then(function (success) {
-            viewModel.templates = success.data;
-            appendBlankTemplate();
-        });
+        appendBlankTemplate();
 
         /**
          * Called by Child Component after Adding a Template
@@ -282,72 +353,17 @@ module.exports = {
          * Called by Child Component after Deleting a Template
          */
         function removeTemplate(template) {
-            _.pull(viewModel.templates, template)
+            _.pull(viewModel.pages, template)
         }
 
         /**
          * Add a Blank Template to the Bottom of the List
          */
         function appendBlankTemplate() {
-            viewModel.templates.push({
+            viewModel.pages.push({
                 name: ''
             });
         }
-    }
-};
-
-},{}],8:[function(require,module,exports){
-'use strict';
-
-require('angular').module('app')
-    .component('createTemplates', require('./CreateTemplates'))
-    .component('createSidebarPage', require('./CreateSidebarPage'))
-;
-
-},{"./CreateSidebarPage":6,"./CreateTemplates":7,"angular":37}],9:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-    templateUrl: 'view/create/sidebar/settings/settings.html',
-    controller: function () {
-        var viewModel = this;
-    }
-};
-
-},{}],10:[function(require,module,exports){
-'use strict';
-
-require('angular').module('app')
-    .component('settings', require('./Settings'))
-;
-
-},{"./Settings":9,"angular":37}],11:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-    templateUrl: 'view/create/sidebar/sidebar.html',
-    controller: function() {
-        var viewModel = this;
-    }
-};
-
-},{}],12:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-    templateUrl: 'view/create/sidebar/elements/element-tile.html',
-    controller: function () {
-        var viewModel = this;
-    }
-};
-
-},{}],13:[function(require,module,exports){
-'use strict';
-
-module.exports = {
-    templateUrl: 'view/create/sidebar/elements/list-elements.html',
-    controller: function () {
-        var viewModel = this;
     }
 };
 
@@ -355,11 +371,11 @@ module.exports = {
 'use strict';
 
 require('angular').module('app')
-    .component('elementTile', require('./ElementTile'))
-    .component('listElements', require('./ListElements'))
+    .component('templates', require('./Templates'))
+    .component('sidebarPage', require('./SidebarPage'))
 ;
 
-},{"./ElementTile":12,"./ListElements":13,"angular":37}],15:[function(require,module,exports){
+},{"./SidebarPage":12,"./Templates":13,"angular":37}],15:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')

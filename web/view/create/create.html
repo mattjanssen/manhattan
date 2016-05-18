@@ -1,3 +1,5 @@
-<sidebar></sidebar>
+<div ng-if="$ctrl.isInitd()">
+    <sidebar pages="$ctrl.pages"></sidebar>
 
-<editor></editor>
+    <editor></editor>
+</div>

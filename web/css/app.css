@@ -179,6 +179,8 @@ body {
 }
 
 .navbar-nav>li>a {
+    padding-top: 11px;
+    padding-bottom: 10px;
     color: rgb(255, 255, 255);
 }
 
