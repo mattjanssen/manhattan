@@ -3,6 +3,7 @@
 namespace AppBundle\Controller\Api;
 
 use AppBundle\Document\Page;
+use AppBundle\Form\Type\PageType;
 use AppBundle\Repository\PageRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use JMS\DiExtraBundle\Annotation\Inject;
@@ -142,16 +143,13 @@ class PageController extends Controller
      * Generate Form
      *
      * @param Page $page
+     * 
      * @return Form
      */
     private function createEditForm(Page $page)
     {
-        $form = $this->createFormBuilder($page, [
-            'allow_extra_fields' => true,
-        ])
-            ->add('name')
-            ->getForm();
-
+        $form = $this->createForm(PageType::class, $page);
+        
         return $form;
     }
 }

@@ -8,6 +8,6 @@
     </div>
 
     <div>
-        <page-editor page="$ctrl.getEditingPage()"></page-editor>
+        <page-editor ng-repeat="page in $ctrl.pages" page="page" ng-show="$ctrl.isEditing(page)"></page-editor>
     </div>
 </div>

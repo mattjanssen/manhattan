@@ -33,9 +33,6 @@ module.exports = {
         viewModel.onTileClick = onTileClick;
         viewModel.isEditing = isEditing;
 
-        // Register watches.
-        $scope.$watch('$ctrl.template.name', onNameChange);
-
         /**
          * Handle General Clicks on the Template Tile
          *
@@ -77,19 +74,6 @@ module.exports = {
 
             // Don't let the click bubble to the entire tile.
             $event.stopPropagation();
-        }
-
-        /**
-         * Handle Changes to the Name
-         *
-         * @param template
-         */
-        function onNameChange() {
-            if (!viewModel.template.id) {
-                return;
-            }
-
-            PageResource.put(viewModel.template);
         }
 
         /**

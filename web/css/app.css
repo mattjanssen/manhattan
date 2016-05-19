@@ -159,12 +159,17 @@ body {
     background: transparent;
 }
 
+.element-draggable.ui-draggable-dragging .element-tile-icon {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 15px 0 rgba(0, 0, 0, 0.4);
+}
+
 .element-tile-icon {
     margin: auto;
     width: 52px;
     height: 54px;
     background-size: 100% auto;
-    border-radius: 3px;
+    border-radius: 7px;
     box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.2);
 }
 
@@ -172,13 +177,16 @@ body {
     background-image: url('/img/element-tile-title.png');
 }
 
-.element-tile-icon.dndDragging {
-    background-color: white;
-    box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.2);
+.element-tile-icon_text {
+    background-image: url('/img/element-tile-text.png');
 }
 
-.element-tile-icon.dndDraggingSource {
-    background: none;
+.element-tile-icon_image {
+    background-image: url('/img/element-tile-image.png');
+}
+
+.element-tile-icon_nav {
+    background-image: url('/img/element-tile-nav.png');
 }
 
 .page-editor {

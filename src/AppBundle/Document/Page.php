@@ -2,6 +2,7 @@
 
 namespace AppBundle\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
 
 /**
@@ -30,6 +31,20 @@ class Page implements \JsonSerializable
     private $name;
 
     /**
+     * @ODM\EmbedMany(targetDocument="Row")
+     *
+     * @var Row[]|ArrayCollection
+     */
+    private $rows;
+
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        $this->rows = new ArrayCollection();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function jsonSerialize()
@@ -37,6 +52,7 @@ class Page implements \JsonSerializable
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'rows' => $this->rows->toArray(),
         ];
     }
 
@@ -62,5 +78,29 @@ class Page implements \JsonSerializable
     public function setName($name)
     {
         $this->name = $name;
+    }
+
+    /**
+     * @return Row[]
+     */
+    public function getRows()
+    {
+        return $this->rows;
+    }
+
+    /**
+     * @param Row $row
+     */
+    public function addRow($row)
+    {
+        $this->rows[] = $row;
+    }
+
+    /**
+     * @param Row $row
+     */
+    public function removeRow($row)
+    {
+        $this->rows->removeElement($row);
     }
 }

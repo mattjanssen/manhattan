@@ -1,8 +1,8 @@
 <div class="element-tile">
-    <div class="element-tile-name">Title</div>
+    <div class="element-tile-name">{{ $ctrl.type }}</div>
 
     <div class="element-draggable" ng-model="$ctrl.element" jqyoui-draggable="{placeholder: 'keep', deepCopy: true}" drag="true" jqyoui-options="$ctrl.uiDraggableOptions">
-        <div class="element-tile-icon element-tile-icon_title"></div>
+        <div class="element-tile-icon element-tile-icon_{{ $ctrl.type }}"></div>
     </div>
 </div>
 

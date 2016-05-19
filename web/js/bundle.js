@@ -99,14 +99,14 @@ require('./resource');
 require('./service');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Environment":2,"./component":24,"./directive":26,"./filter":27,"./resource":60,"./service":64,"angular":41,"angular-animate":29,"angular-dragdrop":30,"angular-resource":32,"angular-route":34,"angular-sanitize":36,"angular-ui-bootstrap":38,"angular-ui-router":39,"bootstrap":42,"jquery":56,"jquery-ui":55,"lodash":57,"moment":58}],2:[function(require,module,exports){
+},{"./Environment":2,"./component":25,"./directive":27,"./filter":28,"./resource":61,"./service":65,"angular":42,"angular-animate":30,"angular-dragdrop":31,"angular-resource":33,"angular-route":35,"angular-sanitize":37,"angular-ui-bootstrap":39,"angular-ui-router":40,"bootstrap":43,"jquery":57,"jquery-ui":56,"lodash":58,"moment":59}],2:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .constant('API_URL', '/api')
 ;
 
-},{"angular":41}],3:[function(require,module,exports){
+},{"angular":42}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -219,6 +219,21 @@ module.exports = {
 'use strict';
 
 module.exports = {
+    templateUrl: 'view/create/editor/element.html',
+    bindings: {
+        element: '<'
+    },
+    controller: function() {
+        var viewModel = this;
+
+        viewModel.element;
+    }
+};
+
+},{}],6:[function(require,module,exports){
+'use strict';
+
+module.exports = {
     templateUrl: 'view/create/editor/new-row.html',
     bindings: {
         row: '<'
@@ -265,7 +280,7 @@ module.exports = {
     }
 };
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -273,14 +288,24 @@ module.exports = {
     bindings: {
         page: '<'
     },
-    controller: function($scope) {
+    controller: function($scope, PageResource) {
         var viewModel = this;
 
         viewModel.page;
 
         viewModel.newRow = createEmptyRow();
 
+        $scope.$watch('$ctrl.page', watchPage, true); // Deep watch on the object.
         $scope.$watchCollection('$ctrl.newRow.elements', watchNewRowElements);
+
+        function watchPage(page, oldPage) {
+            if (!page || !oldPage || page === oldPage) {
+                // No changes to persist.
+                return;
+            }
+
+            PageResource.put(page);
+        }
 
         function watchNewRowElements(elements) {
             if (!elements || !elements.length) {
@@ -288,6 +313,7 @@ module.exports = {
                 return;
             }
 
+            viewModel.page.rows || (viewModel.page.rows = []);
             viewModel.page.rows.push(viewModel.newRow);
 
             viewModel.newRow = createEmptyRow();
@@ -301,7 +327,7 @@ module.exports = {
     }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -316,26 +342,32 @@ module.exports = {
     }
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('editor', require('./Editor'))
+    .component('element', require('./Element'))
     .component('pageEditor', require('./PageEditor'))
     .component('newRow', require('./NewRow'))
     .component('row', require('./Row'))
 ;
 
-},{"./Editor":4,"./NewRow":5,"./PageEditor":6,"./Row":7,"angular":41}],9:[function(require,module,exports){
+},{"./Editor":4,"./Element":5,"./NewRow":6,"./PageEditor":7,"./Row":8,"angular":42}],10:[function(require,module,exports){
 'use strict';
 
 module.exports = {
     templateUrl: 'view/create/sidebar/elements/element-tile.html',
+    bindings: {
+        type: '<'
+    },
     controller: function () {
         var viewModel = this;
 
+        viewModel.type;
+
         viewModel.element = {
-            type: 'title',
+            type: viewModel.type,
         }
 
         viewModel.uiDraggableOptions = {
@@ -349,7 +381,7 @@ module.exports = {
     }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -359,7 +391,7 @@ module.exports = {
     }
 };
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -367,7 +399,7 @@ require('angular').module('app')
     .component('elements', require('./Elements'))
 ;
 
-},{"./ElementTile":9,"./Elements":10,"angular":41}],12:[function(require,module,exports){
+},{"./ElementTile":10,"./Elements":11,"angular":42}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -377,14 +409,14 @@ module.exports = {
     }
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('settings', require('./Settings'))
 ;
 
-},{"./Settings":12,"angular":41}],14:[function(require,module,exports){
+},{"./Settings":13,"angular":42}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -477,7 +509,7 @@ module.exports = {
     }
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -512,9 +544,6 @@ module.exports = {
         viewModel.remove = remove;
         viewModel.onTileClick = onTileClick;
         viewModel.isEditing = isEditing;
-
-        // Register watches.
-        $scope.$watch('$ctrl.template.name', onNameChange);
 
         /**
          * Handle General Clicks on the Template Tile
@@ -560,19 +589,6 @@ module.exports = {
         }
 
         /**
-         * Handle Changes to the Name
-         *
-         * @param template
-         */
-        function onNameChange() {
-            if (!viewModel.template.id) {
-                return;
-            }
-
-            PageResource.put(viewModel.template);
-        }
-
-        /**
          * Check if Page is Being Edited
          *
          * Used to apply CSS styles to button repeat.
@@ -586,7 +602,7 @@ module.exports = {
     }
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -652,7 +668,7 @@ module.exports = {
     }
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -661,7 +677,7 @@ require('angular').module('app')
     .component('templates', require('./Templates'))
 ;
 
-},{"./NewPage":14,"./SidebarPage":15,"./Templates":16,"angular":41}],18:[function(require,module,exports){
+},{"./NewPage":15,"./SidebarPage":16,"./Templates":17,"angular":42}],19:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -671,7 +687,7 @@ require('./Elements');
 require('./Settings');
 require('./Templates');
 
-},{"./Elements":11,"./Settings":13,"./Templates":17,"angular":41}],19:[function(require,module,exports){
+},{"./Elements":12,"./Settings":14,"./Templates":18,"angular":42}],20:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -681,7 +697,7 @@ require('angular').module('app')
 require('./Editor');
 require('./Sidebar');
 
-},{"./Create":3,"./Editor":8,"./Sidebar":18,"angular":41}],20:[function(require,module,exports){
+},{"./Create":3,"./Editor":9,"./Sidebar":19,"angular":42}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -693,14 +709,14 @@ module.exports = {
     }
 };
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('home', require('./Home'))
 ;
 
-},{"./Home":20,"angular":41}],22:[function(require,module,exports){
+},{"./Home":21,"angular":42}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -718,14 +734,14 @@ module.exports = {
     }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('header', require('./Header'))
 ;
 
-},{"./Header":22,"angular":41}],24:[function(require,module,exports){
+},{"./Header":23,"angular":42}],25:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -735,7 +751,7 @@ require('./Create');
 require('./Home');
 require('./Page');
 
-},{"./Create":19,"./Home":21,"./Page":23,"angular":41}],25:[function(require,module,exports){
+},{"./Create":20,"./Home":22,"./Page":24,"angular":42}],26:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -754,20 +770,20 @@ module.exports = function () {
     };
 };
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .directive('focusOn', require('./FocusOn'))
 ;
 
-},{"./FocusOn":25,"angular":41}],27:[function(require,module,exports){
+},{"./FocusOn":26,"angular":42}],28:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
 ;
 
-},{"angular":41}],28:[function(require,module,exports){
+},{"angular":42}],29:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -4916,11 +4932,11 @@ angular.module('ngAnimate', [])
 
 })(window, window.angular);
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 require('./angular-animate');
 module.exports = 'ngAnimate';
 
-},{"./angular-animate":28}],30:[function(require,module,exports){
+},{"./angular-animate":29}],31:[function(require,module,exports){
 /**
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -5341,7 +5357,7 @@ var jqyoui = angular.module('ngDragDrop', []).service('ngDragDropService', ['$ti
   };
 })(window, window.angular, window.jQuery);
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -6111,11 +6127,11 @@ angular.module('ngResource', ['ng']).
 
 })(window, window.angular);
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 require('./angular-resource');
 module.exports = 'ngResource';
 
-},{"./angular-resource":31}],33:[function(require,module,exports){
+},{"./angular-resource":32}],34:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -7142,11 +7158,11 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 require('./angular-route');
 module.exports = 'ngRoute';
 
-},{"./angular-route":33}],35:[function(require,module,exports){
+},{"./angular-route":34}],36:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -7865,11 +7881,11 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 
 })(window, window.angular);
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 require('./angular-sanitize');
 module.exports = 'ngSanitize';
 
-},{"./angular-sanitize":35}],37:[function(require,module,exports){
+},{"./angular-sanitize":36}],38:[function(require,module,exports){
 /*
  * angular-ui-bootstrap
  * http://angular-ui.github.io/bootstrap/
@@ -15199,12 +15215,12 @@ angular.module('ui.bootstrap.datepickerPopup').run(function() {!angular.$$csp().
 angular.module('ui.bootstrap.tooltip').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTooltipCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style>'); angular.$$uibTooltipCss = true; });
 angular.module('ui.bootstrap.timepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTimepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-time input{width:50px;}</style>'); angular.$$uibTimepickerCss = true; });
 angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTypeaheadCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-typeahead-popup].dropdown-menu{display:block;}</style>'); angular.$$uibTypeaheadCss = true; });
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 require('./dist/ui-bootstrap-tpls');
 
 module.exports = 'ui.bootstrap';
 
-},{"./dist/ui-bootstrap-tpls":37}],39:[function(require,module,exports){
+},{"./dist/ui-bootstrap-tpls":38}],40:[function(require,module,exports){
 /**
  * State-based routing for AngularJS
  * @version v0.3.0
@@ -19780,7 +19796,7 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -50649,11 +50665,11 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":40}],42:[function(require,module,exports){
+},{"./angular":41}],43:[function(require,module,exports){
 // This file is autogenerated via the `commonjs` Grunt task. You can require() this file in a CommonJS environment.
 require('../../js/transition.js')
 require('../../js/alert.js')
@@ -50667,7 +50683,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":43,"../../js/alert.js":44,"../../js/button.js":45,"../../js/carousel.js":46,"../../js/collapse.js":47,"../../js/dropdown.js":48,"../../js/modal.js":49,"../../js/popover.js":50,"../../js/scrollspy.js":51,"../../js/tab.js":52,"../../js/tooltip.js":53,"../../js/transition.js":54}],43:[function(require,module,exports){
+},{"../../js/affix.js":44,"../../js/alert.js":45,"../../js/button.js":46,"../../js/carousel.js":47,"../../js/collapse.js":48,"../../js/dropdown.js":49,"../../js/modal.js":50,"../../js/popover.js":51,"../../js/scrollspy.js":52,"../../js/tab.js":53,"../../js/tooltip.js":54,"../../js/transition.js":55}],44:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.3.6
  * http://getbootstrap.com/javascript/#affix
@@ -50831,7 +50847,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.3.6
  * http://getbootstrap.com/javascript/#alerts
@@ -50927,7 +50943,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.3.6
  * http://getbootstrap.com/javascript/#buttons
@@ -51049,7 +51065,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.6
  * http://getbootstrap.com/javascript/#carousel
@@ -51288,7 +51304,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.6
  * http://getbootstrap.com/javascript/#collapse
@@ -51501,7 +51517,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.6
  * http://getbootstrap.com/javascript/#dropdowns
@@ -51668,7 +51684,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.6
  * http://getbootstrap.com/javascript/#modals
@@ -52007,7 +52023,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.6
  * http://getbootstrap.com/javascript/#popovers
@@ -52117,7 +52133,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.6
  * http://getbootstrap.com/javascript/#scrollspy
@@ -52291,7 +52307,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.6
  * http://getbootstrap.com/javascript/#tabs
@@ -52448,7 +52464,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.6
  * http://getbootstrap.com/javascript/#tooltip
@@ -52964,7 +52980,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.3.6
  * http://getbootstrap.com/javascript/#transitions
@@ -53025,7 +53041,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*! jQuery UI - v1.10.3 - 2013-05-03
@@ -68032,7 +68048,7 @@ $.widget( "ui.tooltip", {
 
 }( jQuery ) );
 
-},{"jquery":56}],56:[function(require,module,exports){
+},{"jquery":57}],57:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.3
  * http://jquery.com/
@@ -77876,7 +77892,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -94122,7 +94138,7 @@ return jQuery;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 //! moment.js
 //! version : 2.13.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -98163,7 +98179,7 @@ return jQuery;
     return _moment;
 
 }));
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 'use strict';
 
 module.exports = function (ApiResource) {
@@ -98173,14 +98189,14 @@ module.exports = function (ApiResource) {
     return PageResource;
 };
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .factory('PageResource', require('./PageResource'))
 ;
 
-},{"./PageResource":59,"angular":41}],61:[function(require,module,exports){
+},{"./PageResource":60,"angular":42}],62:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($injector, $q, $rootScope, API_URL) {
@@ -98280,7 +98296,7 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
     }
 };
 
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($resource) {
@@ -98314,7 +98330,7 @@ module.exports = function ($resource) {
     return $apiResource;
 };
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($http, $location, $q, $rootScope, API_URL) {
@@ -98404,7 +98420,7 @@ module.exports = function ($http, $location, $q, $rootScope, API_URL) {
     };
 };
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -98413,4 +98429,4 @@ require('angular').module('app')
     .factory('AuthenticationService', require('./AuthenticationService'))
 ;
 
-},{"./ApiHttpInterceptor":61,"./ApiResource":62,"./AuthenticationService":63,"angular":41}]},{},[1]);
+},{"./ApiHttpInterceptor":62,"./ApiResource":63,"./AuthenticationService":64,"angular":42}]},{},[1]);
