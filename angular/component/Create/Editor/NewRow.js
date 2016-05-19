@@ -3,12 +3,14 @@
 module.exports = {
     templateUrl: 'view/create/editor/new-row.html',
     bindings: {
-        row: '<'
+        save: '&'
     },
     controller: function($timeout) {
         var viewModel = this;
 
-        viewModel.row;
+        viewModel.save;
+
+        viewModel.elements = [];
 
         viewModel.isOver = false;
 
@@ -42,6 +44,8 @@ module.exports = {
         function onDrop() {
             $timeout(function () {
                 viewModel.isOver = false;
+                viewModel.save({elements: viewModel.elements});
+                viewModel.elements = [];
             });
         }
     }

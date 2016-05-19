@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    templateUrl: 'view/create/editor/element.html',
+    templateUrl: 'view/create/editor/element/title-element.html',
     bindings: {
         element: '<'
     },

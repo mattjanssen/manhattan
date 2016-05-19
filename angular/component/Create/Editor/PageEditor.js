@@ -8,13 +8,25 @@ module.exports = {
     controller: function($scope, PageResource) {
         var viewModel = this;
 
+        // Data from Parent Component
         viewModel.page;
 
+        // Initialize View Data
         viewModel.newRow = createEmptyRow();
 
-        $scope.$watch('$ctrl.page', watchPage, true); // Deep watch on the object.
-        $scope.$watchCollection('$ctrl.newRow.elements', watchNewRowElements);
+        // Methods for the View
+        viewModel.removeRow = removeRow;
+        viewModel.saveNewRow = saveNewRow;
 
+        // Initialize Watches
+        $scope.$watch('$ctrl.page', watchPage, true); // Deep watch on the object.
+
+        /**
+         * Persist Any Changes to the Page
+         *
+         * @param page
+         * @param oldPage
+         */
         function watchPage(page, oldPage) {
             if (!page || !oldPage || page === oldPage) {
                 // No changes to persist.
@@ -24,22 +36,51 @@ module.exports = {
             PageResource.put(page);
         }
 
-        function watchNewRowElements(elements) {
+        /**
+         * Watch for Elements Being Added to the New Rows
+         *
+         * @param elements
+         */
+        function saveNewRow(elements, beforeRow) {
             if (!elements || !elements.length) {
                 // No new element at this point.
                 return;
             }
 
+            // Add the row. Make sure page has a rows array.
             viewModel.page.rows || (viewModel.page.rows = []);
-            viewModel.page.rows.push(viewModel.newRow);
 
-            viewModel.newRow = createEmptyRow();
+            var newRow = {
+                elements: elements
+            };
+
+            if (beforeRow) {
+                // Add new row above existing.
+                var rowIndex = _.indexOf(viewModel.page.rows, beforeRow);
+                viewModel.page.rows.splice(rowIndex, 0, newRow);
+            } else {
+                viewModel.page.rows.push(newRow);
+            }
         }
 
+        /**
+         * Generate an Empty Row
+         *
+         * @returns row
+         */
         function createEmptyRow() {
             return {
                 elements: []
             };
+        }
+
+        /**
+         * Remove a Row from Page
+         *
+         * @param row
+         */
+        function removeRow(row) {
+            _.pull(viewModel.page.rows, row);
         }
     }
 };

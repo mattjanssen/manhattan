@@ -1,5 +1,3 @@
-
-<div drop="true" class="editor-row editor-row_new" ng-class="{'editor-row_hover': $ctrl.isOver}" ng-model="$ctrl.row.elements" jqyoui-droppable="{onOver: '$ctrl.onOver', onOut: '$ctrl.onOut', onDrop: '$ctrl.onDrop'}">
+<div drop="true" class="editor-row editor-row_new" ng-class="{'editor-row_hover': $ctrl.isOver}" ng-model="$ctrl.elements" jqyoui-droppable="{onOver: '$ctrl.onOver', onOut: '$ctrl.onOut', onDrop: '$ctrl.onDrop'}">
     <div></div>
 </div>
-<div ng-repeat="element in $ctrl.row.elements">Type: {{ element.type }}</div>
