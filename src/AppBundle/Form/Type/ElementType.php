@@ -18,7 +18,10 @@ class ElementType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('type', TextType::class);
+        $builder
+            ->add('type', TextType::class)
+            ->add('text', TextType::class)
+        ;
     }
 
     /**

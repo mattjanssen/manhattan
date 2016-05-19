@@ -4,7 +4,7 @@
     <div ng-repeat="row in $ctrl.page.rows">
         <new-row save="$ctrl.saveNewRow(elements, row)"></new-row>
 
-        <row row="row" remove-row="$ctrl.removeRow(row)"></row>
+        <row row="row" pages="$ctrl.pages" is-editing="$ctrl.isEditing" remove-row="$ctrl.removeRow(row)"></row>
     </div>
 
     <new-row class="editor-row-last" row="$ctrl.newRow" save="$ctrl.saveNewRow(elements)"></new-row>

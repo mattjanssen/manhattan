@@ -1,3 +1,3 @@
 <div>
-    Nav Element
+    <button class="btn btn-page" ng-repeat="page in $ctrl.pages" ng-if="page.id" ng-class="{'btn-info': $ctrl.isEditing(page), 'btn-default': !$ctrl.isEditing(page)}">{{ page.name }}</button>
 </div>

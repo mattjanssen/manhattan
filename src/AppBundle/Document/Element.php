@@ -11,8 +11,15 @@ use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
  */
 class Element implements \JsonSerializable
 {
+    const TYPE_TITLE = 'title';
+    const TYPE_TEXT = 'text';
+    const TYPE_IMAGE = 'image';
+    const TYPE_NAV = 'nav';
+
     /**
-     * Page Name
+     * Element Type
+     *
+     * See Element::TYPE_* enums.
      *
      * @ODM\String()
      *
@@ -21,12 +28,22 @@ class Element implements \JsonSerializable
     private $type;
 
     /**
+     * Element Text
+     *
+     * @ODM\String()
+     *
+     * @var string
+     */
+    private $text;
+
+    /**
      * {@inheritdoc}
      */
     public function jsonSerialize()
     {
         return [
             'type' => $this->type,
+            'text' => $this->text,
         ];
     }
 
@@ -40,11 +57,33 @@ class Element implements \JsonSerializable
 
     /**
      * @param string $type
+     *
+     * @return $this
      */
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
     }
-    
-    
+
+    /**
+     * @return string
+     */
+    public function getText()
+    {
+        return $this->text;
+    }
+
+    /**
+     * @param string $text
+     *
+     * @return $this
+     */
+    public function setText($text)
+    {
+        $this->text = $text;
+
+        return $this;
+    }
 }

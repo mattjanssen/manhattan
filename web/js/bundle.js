@@ -121,6 +121,7 @@ module.exports = {
         viewModel.isInitd = isInitd;
         viewModel.editPage = editPage;
         viewModel.getEditingPage = getEditingPage;
+        viewModel.isEditing = isEditing;
 
         $scope.$watchCollection('$ctrl.pages', function (newArray, oldArray) {
             if (!newArray) {
@@ -179,6 +180,18 @@ module.exports = {
         function getEditingPage() {
             return editingPage;
         }
+        
+        /**
+         * Check if Page is Being Edited
+         *
+         * Used to apply CSS styles to button repeat.
+         *
+         * @param page
+         * @returns {boolean}
+         */
+        function isEditing(page) {
+            return page === getEditingPage();
+        }
     }
 };
 
@@ -189,29 +202,13 @@ module.exports = {
     templateUrl: 'view/create/editor/editor.html',
     bindings: {
         pages: '<',
-        editPage: '<',
-        getEditingPage: '<'
+        isEditing: '<'
     },
     controller: function($scope) {
         var viewModel = this;
 
         viewModel.pages;
-        viewModel.editPage;
-        viewModel.getEditingPage;
-
-        viewModel.isEditing = isEditing;
-
-        /**
-         * Check if Page is Being Edited
-         *
-         * Used to apply CSS styles to button repeat.
-         *
-         * @param page
-         * @returns {boolean}
-         */
-        function isEditing(page) {
-            return page === viewModel.getEditingPage();
-        }
+        viewModel.isEditing;
     }
 };
 
@@ -221,14 +218,21 @@ module.exports = {
 module.exports = {
     templateUrl: 'view/create/editor/element.html',
     bindings: {
+        pages: '<',
         element: '<',
-        removeElement: '&'
+        removeElement: '&',
+        isEditing: '<'
     },
     controller: function() {
         var viewModel = this;
 
+        viewModel.pages;
         viewModel.element;
         viewModel.removeElement;
+        viewModel.isEditing;
+        
+        viewModel.editing = false;
+        viewModel.deleteHovering = false;
     }
 };
 
@@ -253,12 +257,16 @@ module.exports = {
 module.exports = {
     templateUrl: 'view/create/editor/element/nav-element.html',
     bindings: {
-        element: '<'
+        pages: '<',
+        element: '<',
+        isEditing: '<'
     },
     controller: function() {
         var viewModel = this;
 
+        viewModel.pages;
         viewModel.element;
+        viewModel.isEditing;
     }
 };
 
@@ -363,13 +371,17 @@ module.exports = {
 module.exports = {
     templateUrl: 'view/create/editor/page-editor.html',
     bindings: {
-        page: '<'
+        pages: '<',
+        page: '<',
+        isEditing: '<'
     },
     controller: function($scope, PageResource) {
         var viewModel = this;
 
         // Data from Parent Component
+        viewModel.pages;
         viewModel.page;
+        viewModel.isEditing;
 
         // Initialize View Data
         viewModel.newRow = createEmptyRow();
@@ -451,14 +463,18 @@ module.exports = {
 module.exports = {
     templateUrl: 'view/create/editor/row.html',
     bindings: {
+        pages: '<',
         row: '<',
-        removeRow: '&'
+        removeRow: '&',
+        isEditing: '<'
     },
     controller: function() {
         var viewModel = this;
 
+        viewModel.pages;
         viewModel.row;
         viewModel.removeRow;
+        viewModel.isEditing;
 
         viewModel.removeElement = removeElement;
 

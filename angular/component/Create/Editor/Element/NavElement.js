@@ -3,11 +3,15 @@
 module.exports = {
     templateUrl: 'view/create/editor/element/nav-element.html',
     bindings: {
-        element: '<'
+        pages: '<',
+        element: '<',
+        isEditing: '<'
     },
     controller: function() {
         var viewModel = this;
 
+        viewModel.pages;
         viewModel.element;
+        viewModel.isEditing;
     }
 };

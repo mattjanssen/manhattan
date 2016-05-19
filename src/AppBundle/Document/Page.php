@@ -74,10 +74,14 @@ class Page implements \JsonSerializable
 
     /**
      * @param string $name
+     *
+     * @return $this
      */
     public function setName($name)
     {
         $this->name = $name;
+        
+        return $this;
     }
 
     /**
@@ -89,18 +93,18 @@ class Page implements \JsonSerializable
     }
 
     /**
-     * @param Row $row
+     * Set Rows
+     *
+     * Use setter instead of add/remove to preserve order upon form submission.
+     *
+     * @param $rows
+     * 
+     * @return $this
      */
-    public function addRow($row)
+    public function setRows($rows)
     {
-        $this->rows[] = $row;
-    }
+        $this->rows = new ArrayCollection($rows);
 
-    /**
-     * @param Row $row
-     */
-    public function removeRow($row)
-    {
-        $this->rows->removeElement($row);
+        return $this;
     }
 }

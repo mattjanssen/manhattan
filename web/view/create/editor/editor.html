@@ -4,10 +4,6 @@
     </div>
 
     <div>
-        <button class="btn btn-page" ng-repeat="page in $ctrl.pages" ng-if="page.id" ng-class="{'btn-info': $ctrl.isEditing(page), 'btn-default': !$ctrl.isEditing(page)}" ng-click="$ctrl.editPage(page)">{{ page.name }}</button>
-    </div>
-
-    <div>
-        <page-editor ng-repeat="page in $ctrl.pages" page="page" ng-show="$ctrl.isEditing(page)"></page-editor>
+        <page-editor ng-repeat="page in $ctrl.pages" page="page" pages="$ctrl.pages" is-editing="$ctrl.isEditing" ng-show="$ctrl.isEditing(page)"></page-editor>
     </div>
 </div>

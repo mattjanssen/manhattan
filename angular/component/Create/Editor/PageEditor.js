@@ -3,13 +3,17 @@
 module.exports = {
     templateUrl: 'view/create/editor/page-editor.html',
     bindings: {
-        page: '<'
+        pages: '<',
+        page: '<',
+        isEditing: '<'
     },
     controller: function($scope, PageResource) {
         var viewModel = this;
 
         // Data from Parent Component
+        viewModel.pages;
         viewModel.page;
+        viewModel.isEditing;
 
         // Initialize View Data
         viewModel.newRow = createEmptyRow();

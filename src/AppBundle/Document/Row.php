@@ -38,18 +38,18 @@ class Row implements \JsonSerializable
     }
 
     /**
-     * @param Element $elements
+     * Set Elements
+     * 
+     * Use setter instead of add/remove to preserve order upon form submission.
+     * 
+     * @param $elements
+     *
+     * @return $this
      */
-    public function addElement($elements)
+    public function setElements($elements)
     {
-        $this->elements[] = $elements;
-    }
+        $this->elements = new ArrayCollection($elements);
 
-    /**
-     * @param Element $elements
-     */
-    public function removeElement($elements)
-    {
-        $this->elements->removeElement($elements);
+        return $this;
     }
 }

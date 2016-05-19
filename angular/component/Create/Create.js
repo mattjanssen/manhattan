@@ -12,6 +12,7 @@ module.exports = {
         viewModel.isInitd = isInitd;
         viewModel.editPage = editPage;
         viewModel.getEditingPage = getEditingPage;
+        viewModel.isEditing = isEditing;
 
         $scope.$watchCollection('$ctrl.pages', function (newArray, oldArray) {
             if (!newArray) {
@@ -69,6 +70,18 @@ module.exports = {
          */
         function getEditingPage() {
             return editingPage;
+        }
+        
+        /**
+         * Check if Page is Being Edited
+         *
+         * Used to apply CSS styles to button repeat.
+         *
+         * @param page
+         * @returns {boolean}
+         */
+        function isEditing(page) {
+            return page === getEditingPage();
         }
     }
 };
