@@ -3,6 +3,7 @@
 // Initialize the app and its dependencies. (See dependency includes below)
 require('angular').module('app', [
     'ngAnimate',
+    'ngDragDrop',
     'ngResource',
     'ngSanitize',
     'ui.bootstrap',
@@ -75,6 +76,7 @@ global.moment = require('moment');
 // Require dependencies.
 require('angular');
 require('angular-animate');
+require('angular-dragdrop');
 require('angular-resource');
 require('angular-route');
 require('angular-sanitize');

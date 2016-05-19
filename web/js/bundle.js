@@ -5,6 +5,7 @@
 // Initialize the app and its dependencies. (See dependency includes below)
 require('angular').module('app', [
     'ngAnimate',
+    'ngDragDrop',
     'ngResource',
     'ngSanitize',
     'ui.bootstrap',
@@ -77,6 +78,7 @@ global.moment = require('moment');
 // Require dependencies.
 require('angular');
 require('angular-animate');
+require('angular-dragdrop');
 require('angular-resource');
 require('angular-route');
 require('angular-sanitize');
@@ -97,14 +99,14 @@ require('./resource');
 require('./service');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Environment":2,"./component":24,"./directive":26,"./filter":27,"./resource":59,"./service":63,"angular":40,"angular-animate":29,"angular-resource":31,"angular-route":33,"angular-sanitize":35,"angular-ui-bootstrap":37,"angular-ui-router":38,"bootstrap":41,"jquery":55,"jquery-ui":54,"lodash":56,"moment":57}],2:[function(require,module,exports){
+},{"./Environment":2,"./component":24,"./directive":26,"./filter":27,"./resource":60,"./service":64,"angular":41,"angular-animate":29,"angular-dragdrop":30,"angular-resource":32,"angular-route":34,"angular-sanitize":36,"angular-ui-bootstrap":38,"angular-ui-router":39,"bootstrap":42,"jquery":56,"jquery-ui":55,"lodash":57,"moment":58}],2:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .constant('API_URL', '/api')
 ;
 
-},{"angular":40}],3:[function(require,module,exports){
+},{"angular":41}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -221,10 +223,45 @@ module.exports = {
     bindings: {
         row: '<'
     },
-    controller: function() {
+    controller: function($timeout) {
         var viewModel = this;
 
         viewModel.row;
+
+        viewModel.isOver = false;
+
+        viewModel.onOver = onOver;
+        viewModel.onOut = onOut;
+        viewModel.onDrop = onDrop;
+
+        /**
+         * Handle Element Tile Hovering over Component
+         */
+        function onOver() {
+            $timeout(function () {
+                // $timeout used to ensure the digest cycle catches the change.
+                // The plugin is not calling $digest or $apply.
+                viewModel.isOver = true;
+            });
+        }
+
+        /**
+         * Handle Element Tile Leaving Component Area
+         */
+        function onOut() {
+            $timeout(function () {
+                viewModel.isOver = false;
+            });
+        }
+
+        /**
+         * Handle Element Drop
+         */
+        function onDrop() {
+            $timeout(function () {
+                viewModel.isOver = false;
+            });
+        }
     }
 };
 
@@ -236,10 +273,31 @@ module.exports = {
     bindings: {
         page: '<'
     },
-    controller: function() {
+    controller: function($scope) {
         var viewModel = this;
 
         viewModel.page;
+
+        viewModel.newRow = createEmptyRow();
+
+        $scope.$watchCollection('$ctrl.newRow.elements', watchNewRowElements);
+
+        function watchNewRowElements(elements) {
+            if (!elements || !elements.length) {
+                // No new element at this point.
+                return;
+            }
+
+            viewModel.page.rows.push(viewModel.newRow);
+
+            viewModel.newRow = createEmptyRow();
+        }
+
+        function createEmptyRow() {
+            return {
+                elements: []
+            };
+        }
     }
 };
 
@@ -268,13 +326,26 @@ require('angular').module('app')
     .component('row', require('./Row'))
 ;
 
-},{"./Editor":4,"./NewRow":5,"./PageEditor":6,"./Row":7,"angular":40}],9:[function(require,module,exports){
+},{"./Editor":4,"./NewRow":5,"./PageEditor":6,"./Row":7,"angular":41}],9:[function(require,module,exports){
 'use strict';
 
 module.exports = {
     templateUrl: 'view/create/sidebar/elements/element-tile.html',
     controller: function () {
         var viewModel = this;
+
+        viewModel.element = {
+            type: 'title',
+        }
+
+        viewModel.uiDraggableOptions = {
+            revert: 'invalid',
+            revertDuration: 0,
+            cursorAt: {
+                top: 44,
+                left: 56
+            }
+        };
     }
 };
 
@@ -296,7 +367,7 @@ require('angular').module('app')
     .component('elements', require('./Elements'))
 ;
 
-},{"./ElementTile":9,"./Elements":10,"angular":40}],12:[function(require,module,exports){
+},{"./ElementTile":9,"./Elements":10,"angular":41}],12:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -313,7 +384,7 @@ require('angular').module('app')
     .component('settings', require('./Settings'))
 ;
 
-},{"./Settings":12,"angular":40}],14:[function(require,module,exports){
+},{"./Settings":12,"angular":41}],14:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -590,7 +661,7 @@ require('angular').module('app')
     .component('templates', require('./Templates'))
 ;
 
-},{"./NewPage":14,"./SidebarPage":15,"./Templates":16,"angular":40}],18:[function(require,module,exports){
+},{"./NewPage":14,"./SidebarPage":15,"./Templates":16,"angular":41}],18:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -600,7 +671,7 @@ require('./Elements');
 require('./Settings');
 require('./Templates');
 
-},{"./Elements":11,"./Settings":13,"./Templates":17,"angular":40}],19:[function(require,module,exports){
+},{"./Elements":11,"./Settings":13,"./Templates":17,"angular":41}],19:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -610,7 +681,7 @@ require('angular').module('app')
 require('./Editor');
 require('./Sidebar');
 
-},{"./Create":3,"./Editor":8,"./Sidebar":18,"angular":40}],20:[function(require,module,exports){
+},{"./Create":3,"./Editor":8,"./Sidebar":18,"angular":41}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -629,7 +700,7 @@ require('angular').module('app')
     .component('home', require('./Home'))
 ;
 
-},{"./Home":20,"angular":40}],22:[function(require,module,exports){
+},{"./Home":20,"angular":41}],22:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -654,7 +725,7 @@ require('angular').module('app')
     .component('header', require('./Header'))
 ;
 
-},{"./Header":22,"angular":40}],24:[function(require,module,exports){
+},{"./Header":22,"angular":41}],24:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -664,7 +735,7 @@ require('./Create');
 require('./Home');
 require('./Page');
 
-},{"./Create":19,"./Home":21,"./Page":23,"angular":40}],25:[function(require,module,exports){
+},{"./Create":19,"./Home":21,"./Page":23,"angular":41}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -690,13 +761,13 @@ require('angular').module('app')
     .directive('focusOn', require('./FocusOn'))
 ;
 
-},{"./FocusOn":25,"angular":40}],27:[function(require,module,exports){
+},{"./FocusOn":25,"angular":41}],27:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
 ;
 
-},{"angular":40}],28:[function(require,module,exports){
+},{"angular":41}],28:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -4851,6 +4922,427 @@ module.exports = 'ngAnimate';
 
 },{"./angular-animate":28}],30:[function(require,module,exports){
 /**
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/**
+ * Implementing Drag and Drop functionality in AngularJS is easier than ever.
+ * Demo: http://codef0rmer.github.com/angular-dragdrop/
+ *
+ * @version 1.0.13
+ *
+ * (c) 2013 Amit Gharat a.k.a codef0rmer <amit.2006.it@gmail.com> - amitgharat.wordpress.com
+ */
+
+(function (window, angular, $, undefined) {
+'use strict';
+
+var jqyoui = angular.module('ngDragDrop', []).service('ngDragDropService', ['$timeout', '$parse', '$q', function($timeout, $parse, $q) {
+    this.draggableScope = null;
+    this.droppableScope = null;
+
+    $('head').prepend('<style type="text/css">@charset "UTF-8";.angular-dragdrop-hide{display: none !important;}</style>');
+
+    this.callEventCallback = function (scope, callbackName, event, ui) {
+      if (!callbackName) return;
+
+      var objExtract = extract(callbackName),
+          callback = objExtract.callback,
+          constructor = objExtract.constructor,
+          args = [event, ui].concat(objExtract.args);
+      
+      // call either $scoped method i.e. $scope.dropCallback or constructor's method i.e. this.dropCallback.
+      // Removing scope.$apply call that was performance intensive (especially onDrag) and does not require it
+      // always. So call it within the callback if needed.
+      return (scope[callback] || scope[constructor][callback]).apply(scope[callback] ? scope : scope[constructor], args);
+      
+      function extract(callbackName) {
+        var atStartBracket = callbackName.indexOf('(') !== -1 ? callbackName.indexOf('(') : callbackName.length,
+            atEndBracket = callbackName.lastIndexOf(')') !== -1 ? callbackName.lastIndexOf(')') : callbackName.length,
+            args = callbackName.substring(atStartBracket + 1, atEndBracket), // matching function arguments inside brackets
+            constructor = callbackName.indexOf('.') !== -1 ? callbackName.substr(0, callbackName.indexOf('.')) : null; // matching a string upto a dot to check ctrl as syntax
+            constructor = scope[constructor] && typeof scope[constructor].constructor === 'function' ? constructor : null;
+
+        return {
+          callback: callbackName.substring(constructor && constructor.length + 1 || 0, atStartBracket),
+          args: $.map(args && args.split(',') || [], function(item) { return [$parse(item)(scope)]; }),
+          constructor: constructor
+        }
+      }
+    };
+
+    this.invokeDrop = function ($draggable, $droppable, event, ui) {
+      var dragModel = '',
+        dropModel = '',
+        dragSettings = {},
+        dropSettings = {},
+        jqyoui_pos = null,
+        dragItem = {},
+        dropItem = {},
+        dragModelValue,
+        dropModelValue,
+        $droppableDraggable = null,
+        droppableScope = this.droppableScope,
+        draggableScope = this.draggableScope,
+        $helper = null,
+        promises = [],
+        temp;
+
+      dragModel = $draggable.ngattr('ng-model');
+      dropModel = $droppable.ngattr('ng-model');
+      dragModelValue = draggableScope.$eval(dragModel);
+      dropModelValue = droppableScope.$eval(dropModel);
+
+      $droppableDraggable = $droppable.find('[jqyoui-draggable]:last,[data-jqyoui-draggable]:last');
+      dropSettings = droppableScope.$eval($droppable.attr('jqyoui-droppable') || $droppable.attr('data-jqyoui-droppable')) || [];
+      dragSettings = draggableScope.$eval($draggable.attr('jqyoui-draggable') || $draggable.attr('data-jqyoui-draggable')) || [];
+
+      // Helps pick up the right item
+      dragSettings.index = this.fixIndex(draggableScope, dragSettings, dragModelValue);
+      dropSettings.index = this.fixIndex(droppableScope, dropSettings, dropModelValue);
+
+      jqyoui_pos = angular.isArray(dragModelValue) ? dragSettings.index : null;
+      dragItem = angular.isArray(dragModelValue) ? dragModelValue[jqyoui_pos] : dragModelValue;
+
+      if (dragSettings.deepCopy) {
+        dragItem = angular.copy(dragItem);
+      }
+
+      if (angular.isArray(dropModelValue) && dropSettings && dropSettings.index !== undefined) {
+        dropItem = dropModelValue[dropSettings.index];
+      } else if (!angular.isArray(dropModelValue)) {
+        dropItem = dropModelValue;
+      } else {
+        dropItem = {};
+      }
+
+      if (dropSettings.deepCopy) {
+        dropItem = angular.copy(dropItem);
+      }
+
+      if (dragSettings.beforeDrop) {
+        promises.push(this.callEventCallback(draggableScope, dragSettings.beforeDrop, event, ui));
+      }
+
+      $q.all(promises).then(angular.bind(this, function() {
+        if (dragSettings.insertInline && dragModel === dropModel) {
+          if (dragSettings.index > dropSettings.index) {
+            temp = dragModelValue[dragSettings.index];
+            for (var i = dragSettings.index; i > dropSettings.index; i--) {
+              dropModelValue[i] = angular.copy(dropModelValue[i - 1]);
+              dropModelValue[i - 1] = {};
+              dropModelValue[i][dragSettings.direction] = 'left';
+            }
+            dropModelValue[dropSettings.index] = temp;
+          } else {
+            temp = dragModelValue[dragSettings.index];
+            for (var i = dragSettings.index; i < dropSettings.index; i++) {
+              dropModelValue[i] = angular.copy(dropModelValue[i + 1]);
+              dropModelValue[i + 1] = {};
+              dropModelValue[i][dragSettings.direction] = 'right';
+            }
+            dropModelValue[dropSettings.index] = temp;
+          }
+          this.callEventCallback(droppableScope, dropSettings.onDrop, event, ui);
+        } else if (dragSettings.animate === true) {
+          // be nice with absolutely positioned brethren :-)
+          $helper = $draggable.clone();
+          $helper.css({'position': 'absolute'}).css($draggable.offset());
+          $('body').append($helper);
+          $draggable.addClass('angular-dragdrop-hide');
+
+          this.move($helper, $droppableDraggable.length > 0 ? $droppableDraggable : $droppable, null, 'fast', dropSettings, function() { $helper.remove(); });
+          this.move($droppableDraggable.length > 0 && !dropSettings.multiple ? $droppableDraggable : [], $draggable.parent('[jqyoui-droppable],[data-jqyoui-droppable]'), jqyoui.startXY, 'fast', dropSettings, angular.bind(this, function() {
+            $timeout(angular.bind(this, function() {
+              // Do not move this into move() to avoid flickering issue
+              $draggable.css({'position': 'relative', 'left': '', 'top': ''}).removeClass('angular-dragdrop-hide');
+              // Angular v1.2 uses ng-hide to hide an element not display property
+              // so we've to manually remove display:none set in this.move()
+              $droppableDraggable.css({'position': 'relative', 'left': '', 'top': '', 'display': $droppableDraggable.css('display') === 'none' ? '' : $droppableDraggable.css('display')});
+
+              this.mutateDraggable(draggableScope, dropSettings, dragSettings, dragModel, dropModel, dropItem, $draggable);
+              this.mutateDroppable(droppableScope, dropSettings, dragSettings, dropModel, dragItem, jqyoui_pos);
+              this.callEventCallback(droppableScope, dropSettings.onDrop, event, ui);
+            }));
+          }));
+        } else {
+          $timeout(angular.bind(this, function() {
+            this.mutateDraggable(draggableScope, dropSettings, dragSettings, dragModel, dropModel, dropItem, $draggable);
+            this.mutateDroppable(droppableScope, dropSettings, dragSettings, dropModel, dragItem, jqyoui_pos);
+            this.callEventCallback(droppableScope, dropSettings.onDrop, event, ui);
+          }));
+        }
+      })).finally(angular.bind(this, function() {
+        this.restore($draggable);
+      }));
+    };
+
+    this.move = function($fromEl, $toEl, toPos, duration, dropSettings, callback) {
+      if ($fromEl.length === 0) {
+        if (callback) {
+          window.setTimeout(function() {
+            callback();
+          }, 300);
+        }
+        return false;
+      }
+
+      var zIndex = $fromEl.css('z-index'),
+        fromPos = $fromEl[dropSettings.containment || 'offset'](),
+        displayProperty = $toEl.css('display'), // sometimes `display` is other than `block`
+        hadNgHideCls = $toEl.hasClass('ng-hide'),
+        hadDNDHideCls = $toEl.hasClass('angular-dragdrop-hide');
+
+      if (toPos === null && $toEl.length > 0) {
+        if (($toEl.attr('jqyoui-draggable') || $toEl.attr('data-jqyoui-draggable')) !== undefined && $toEl.ngattr('ng-model') !== undefined && $toEl.is(':visible') && dropSettings && dropSettings.multiple) {
+          toPos = $toEl[dropSettings.containment || 'offset']();
+          if (dropSettings.stack === false) {
+            toPos.left+= $toEl.outerWidth(true);
+          } else {
+            toPos.top+= $toEl.outerHeight(true);
+          }
+        } else {
+          // Angular v1.2 uses ng-hide to hide an element 
+          // so we've to remove it in order to grab its position
+          if (hadNgHideCls) $toEl.removeClass('ng-hide');
+          if (hadDNDHideCls) $toEl.removeClass('angular-dragdrop-hide');
+          toPos = $toEl.css({'visibility': 'hidden', 'display': 'block'})[dropSettings.containment || 'offset']();
+          $toEl.css({'visibility': '','display': displayProperty});
+        }
+      }
+
+      $fromEl.css({'position': 'absolute', 'z-index': 9999})
+        .css(fromPos)
+        .animate(toPos, duration, function() {
+          // Angular v1.2 uses ng-hide to hide an element
+          // and as we remove it above, we've to put it back to
+          // hide the element (while swapping) if it was hidden already
+          // because we remove the display:none in this.invokeDrop()
+          if (hadNgHideCls) $toEl.addClass('ng-hide');
+          if (hadDNDHideCls) $toEl.addClass('angular-dragdrop-hide');
+          $fromEl.css('z-index', zIndex);
+          if (callback) callback();
+        });
+    };
+
+    this.mutateDroppable = function(scope, dropSettings, dragSettings, dropModel, dragItem, jqyoui_pos) {
+      var dropModelValue = scope.$eval(dropModel);
+
+      scope.dndDragItem = dragItem;
+
+      if (angular.isArray(dropModelValue)) {
+        if (dropSettings && dropSettings.index >= 0) {
+          dropModelValue[dropSettings.index] = dragItem;
+        } else {
+          dropModelValue.push(dragItem);
+        }
+        if (dragSettings && dragSettings.placeholder === true) {
+          dropModelValue[dropModelValue.length - 1]['jqyoui_pos'] = jqyoui_pos;
+        }
+      } else {
+        $parse(dropModel + ' = dndDragItem')(scope);
+        if (dragSettings && dragSettings.placeholder === true) {
+          dropModelValue['jqyoui_pos'] = jqyoui_pos;
+        }
+      }
+    };
+
+    this.mutateDraggable = function(scope, dropSettings, dragSettings, dragModel, dropModel, dropItem, $draggable) {
+      var isEmpty = angular.equals(dropItem, {}) || !dropItem,
+        dragModelValue = scope.$eval(dragModel);
+
+      scope.dndDropItem = dropItem;
+
+      if (dragSettings && dragSettings.placeholder) {
+        if (dragSettings.placeholder != 'keep'){
+          if (angular.isArray(dragModelValue) && dragSettings.index !== undefined) {
+            dragModelValue[dragSettings.index] = dropItem;
+          } else {
+            $parse(dragModel + ' = dndDropItem')(scope);
+          }
+        }
+      } else {
+        if (angular.isArray(dragModelValue)) {
+          if (isEmpty) {
+            if (dragSettings && ( dragSettings.placeholder !== true && dragSettings.placeholder !== 'keep' )) {
+              dragModelValue.splice(dragSettings.index, 1);
+            }
+          } else {
+            dragModelValue[dragSettings.index] = dropItem;
+          }
+        } else {
+          // Fix: LIST(object) to LIST(array) - model does not get updated using just scope[dragModel] = {...}
+          // P.S.: Could not figure out why it happened
+          $parse(dragModel + ' = dndDropItem')(scope);
+          if (scope.$parent) {
+            $parse(dragModel + ' = dndDropItem')(scope.$parent);
+          }
+        }
+      }
+
+      this.restore($draggable);
+    };
+
+    this.restore = function($draggable) {
+      $draggable.css({'z-index': '', 'left': '', 'top': ''});
+    };
+
+    this.fixIndex = function(scope, settings, modelValue) {
+      if (settings.applyFilter && angular.isArray(modelValue) && modelValue.length > 0) {
+        var dragModelValueFiltered = scope[settings.applyFilter](),
+            lookup = dragModelValueFiltered[settings.index],
+            actualIndex = undefined;
+
+        modelValue.forEach(function(item, i) {
+           if (angular.equals(item, lookup)) {
+             actualIndex = i;
+           }
+        });
+
+        return actualIndex;
+      }
+
+      return settings.index;
+    };
+  }]).directive('jqyouiDraggable', ['ngDragDropService', function(ngDragDropService) {
+    return {
+      require: '?jqyouiDroppable',
+      restrict: 'A',
+      link: function(scope, elem, attrs) {
+        var element = $(elem);
+        var dragSettings, jqyouiOptions, zIndex, killWatcher;
+        var updateDraggable = function(newValue, oldValue) {
+          if (newValue) {
+            dragSettings = scope.$eval(element.attr('jqyoui-draggable') || element.attr('data-jqyoui-draggable')) || {};
+            jqyouiOptions = scope.$eval(attrs.jqyouiOptions) || {};
+            element
+              .draggable({disabled: false})
+              .draggable(jqyouiOptions)
+              .draggable({
+                start: function(event, ui) {
+                  ngDragDropService.draggableScope = scope;
+                  zIndex = $(jqyouiOptions.helper ? ui.helper : this).css('z-index');
+                  $(jqyouiOptions.helper ? ui.helper : this).css('z-index', 9999);
+                  jqyoui.startXY = $(this)[dragSettings.containment || 'offset']();
+                  ngDragDropService.callEventCallback(scope, dragSettings.onStart, event, ui);
+                },
+                stop: function(event, ui) {
+                  $(jqyouiOptions.helper ? ui.helper : this).css('z-index', zIndex);
+                  ngDragDropService.callEventCallback(scope, dragSettings.onStop, event, ui);
+                },
+                drag: function(event, ui) {
+                  ngDragDropService.callEventCallback(scope, dragSettings.onDrag, event, ui);
+                }
+              });
+          } else {
+            element.draggable({disabled: true});
+          }
+
+          if (killWatcher && angular.isDefined(newValue) && (angular.equals(attrs.drag, 'true') || angular.equals(attrs.drag, 'false'))) {
+            killWatcher();
+            killWatcher = null;
+          }
+        };
+
+        killWatcher = scope.$watch(function() { return scope.$eval(attrs.drag); }, updateDraggable);
+        updateDraggable();
+
+        element.on('$destroy', function() {
+          element.draggable({disabled: true}).draggable('destroy');
+        });
+      }
+    };
+  }]).directive('jqyouiDroppable', ['ngDragDropService', '$q', function(ngDragDropService, $q) {
+    return {
+      restrict: 'A',
+      priority: 1,
+      link: function(scope, elem, attrs) {
+        var element = $(elem);
+        var dropSettings, jqyouiOptions, killWatcher;
+        var updateDroppable = function(newValue, oldValue) {
+          if (newValue) {
+            dropSettings = scope.$eval($(element).attr('jqyoui-droppable') || $(element).attr('data-jqyoui-droppable')) || {};
+            jqyouiOptions = scope.$eval(attrs.jqyouiOptions) || {};
+            element
+              .droppable({disabled: false})
+              .droppable(jqyouiOptions)
+              .droppable({
+                over: function(event, ui) {
+                  ngDragDropService.callEventCallback(scope, dropSettings.onOver, event, ui);
+                },
+                out: function(event, ui) {
+                  ngDragDropService.callEventCallback(scope, dropSettings.onOut, event, ui);
+                },
+                drop: function(event, ui) {
+                  var beforeDropPromise = null;
+
+                  if (dropSettings.beforeDrop) {
+                    beforeDropPromise = ngDragDropService.callEventCallback(scope, dropSettings.beforeDrop, event, ui);
+                  } else {
+                    beforeDropPromise = (function() {
+                      var deferred = $q.defer();
+                      deferred.resolve();
+                      return deferred.promise;
+                    })();
+                  }
+
+                  beforeDropPromise.then(angular.bind(this, function() {
+                    if ($(ui.draggable).ngattr('ng-model') && attrs.ngModel) {
+                      ngDragDropService.droppableScope = scope;
+                      ngDragDropService.invokeDrop($(ui.draggable), $(this), event, ui);
+                    } else {
+                      ngDragDropService.callEventCallback(scope, dropSettings.onDrop, event, ui);
+                    }
+                  }), function() {
+                    ui.draggable.animate({left: '', top: ''}, jqyouiOptions.revertDuration || 0);
+                  });
+                }
+              });
+          } else {
+            element.droppable({disabled: true});
+          }
+
+          if (killWatcher && angular.isDefined(newValue) && (angular.equals(attrs.drop, 'true') || angular.equals(attrs.drop, 'false'))) {
+            killWatcher();
+            killWatcher = null;
+          }
+        };
+
+        killWatcher = scope.$watch(function() { return scope.$eval(attrs.drop); }, updateDroppable);
+        updateDroppable();
+        
+        element.on('$destroy', function() {
+          element.droppable({disabled: true}).droppable('destroy');
+        });
+      }
+    };
+  }]);
+
+  $.fn.ngattr = function(name, value) {
+    var element = this[0];
+
+    return element.getAttribute(name) || element.getAttribute('data-' + name);
+  };
+})(window, window.angular, window.jQuery);
+
+},{}],31:[function(require,module,exports){
+/**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
  * License: MIT
@@ -5619,11 +6111,11 @@ angular.module('ngResource', ['ng']).
 
 })(window, window.angular);
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 require('./angular-resource');
 module.exports = 'ngResource';
 
-},{"./angular-resource":30}],32:[function(require,module,exports){
+},{"./angular-resource":31}],33:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -6650,11 +7142,11 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 require('./angular-route');
 module.exports = 'ngRoute';
 
-},{"./angular-route":32}],34:[function(require,module,exports){
+},{"./angular-route":33}],35:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -7373,11 +7865,11 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 
 })(window, window.angular);
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 require('./angular-sanitize');
 module.exports = 'ngSanitize';
 
-},{"./angular-sanitize":34}],36:[function(require,module,exports){
+},{"./angular-sanitize":35}],37:[function(require,module,exports){
 /*
  * angular-ui-bootstrap
  * http://angular-ui.github.io/bootstrap/
@@ -14707,12 +15199,12 @@ angular.module('ui.bootstrap.datepickerPopup').run(function() {!angular.$$csp().
 angular.module('ui.bootstrap.tooltip').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTooltipCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style>'); angular.$$uibTooltipCss = true; });
 angular.module('ui.bootstrap.timepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTimepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-time input{width:50px;}</style>'); angular.$$uibTimepickerCss = true; });
 angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTypeaheadCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-typeahead-popup].dropdown-menu{display:block;}</style>'); angular.$$uibTypeaheadCss = true; });
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 require('./dist/ui-bootstrap-tpls');
 
 module.exports = 'ui.bootstrap';
 
-},{"./dist/ui-bootstrap-tpls":36}],38:[function(require,module,exports){
+},{"./dist/ui-bootstrap-tpls":37}],39:[function(require,module,exports){
 /**
  * State-based routing for AngularJS
  * @version v0.3.0
@@ -19288,7 +19780,7 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -50157,11 +50649,11 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":39}],41:[function(require,module,exports){
+},{"./angular":40}],42:[function(require,module,exports){
 // This file is autogenerated via the `commonjs` Grunt task. You can require() this file in a CommonJS environment.
 require('../../js/transition.js')
 require('../../js/alert.js')
@@ -50175,7 +50667,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":42,"../../js/alert.js":43,"../../js/button.js":44,"../../js/carousel.js":45,"../../js/collapse.js":46,"../../js/dropdown.js":47,"../../js/modal.js":48,"../../js/popover.js":49,"../../js/scrollspy.js":50,"../../js/tab.js":51,"../../js/tooltip.js":52,"../../js/transition.js":53}],42:[function(require,module,exports){
+},{"../../js/affix.js":43,"../../js/alert.js":44,"../../js/button.js":45,"../../js/carousel.js":46,"../../js/collapse.js":47,"../../js/dropdown.js":48,"../../js/modal.js":49,"../../js/popover.js":50,"../../js/scrollspy.js":51,"../../js/tab.js":52,"../../js/tooltip.js":53,"../../js/transition.js":54}],43:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.3.6
  * http://getbootstrap.com/javascript/#affix
@@ -50339,7 +50831,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.3.6
  * http://getbootstrap.com/javascript/#alerts
@@ -50435,7 +50927,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.3.6
  * http://getbootstrap.com/javascript/#buttons
@@ -50557,7 +51049,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.6
  * http://getbootstrap.com/javascript/#carousel
@@ -50796,7 +51288,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.6
  * http://getbootstrap.com/javascript/#collapse
@@ -51009,7 +51501,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.6
  * http://getbootstrap.com/javascript/#dropdowns
@@ -51176,7 +51668,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.6
  * http://getbootstrap.com/javascript/#modals
@@ -51515,7 +52007,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.6
  * http://getbootstrap.com/javascript/#popovers
@@ -51625,7 +52117,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.6
  * http://getbootstrap.com/javascript/#scrollspy
@@ -51799,7 +52291,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.6
  * http://getbootstrap.com/javascript/#tabs
@@ -51956,7 +52448,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.6
  * http://getbootstrap.com/javascript/#tooltip
@@ -52472,7 +52964,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.3.6
  * http://getbootstrap.com/javascript/#transitions
@@ -52533,7 +53025,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*! jQuery UI - v1.10.3 - 2013-05-03
@@ -67540,7 +68032,7 @@ $.widget( "ui.tooltip", {
 
 }( jQuery ) );
 
-},{"jquery":55}],55:[function(require,module,exports){
+},{"jquery":56}],56:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.3
  * http://jquery.com/
@@ -77384,7 +77876,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -93630,7 +94122,7 @@ return jQuery;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 //! moment.js
 //! version : 2.13.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -97671,7 +98163,7 @@ return jQuery;
     return _moment;
 
 }));
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 'use strict';
 
 module.exports = function (ApiResource) {
@@ -97681,14 +98173,14 @@ module.exports = function (ApiResource) {
     return PageResource;
 };
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .factory('PageResource', require('./PageResource'))
 ;
 
-},{"./PageResource":58,"angular":40}],60:[function(require,module,exports){
+},{"./PageResource":59,"angular":41}],61:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($injector, $q, $rootScope, API_URL) {
@@ -97788,7 +98280,7 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
     }
 };
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($resource) {
@@ -97822,7 +98314,7 @@ module.exports = function ($resource) {
     return $apiResource;
 };
 
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($http, $location, $q, $rootScope, API_URL) {
@@ -97912,7 +98404,7 @@ module.exports = function ($http, $location, $q, $rootScope, API_URL) {
     };
 };
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -97921,4 +98413,4 @@ require('angular').module('app')
     .factory('AuthenticationService', require('./AuthenticationService'))
 ;
 
-},{"./ApiHttpInterceptor":60,"./ApiResource":61,"./AuthenticationService":62,"angular":40}]},{},[1]);
+},{"./ApiHttpInterceptor":61,"./ApiResource":62,"./AuthenticationService":63,"angular":41}]},{},[1]);
