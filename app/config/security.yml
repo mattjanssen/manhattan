@@ -13,21 +13,25 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+            stateless: true
 
         login_api:
             pattern: ^/api/login/
             security: false
+            stateless: true
 
         api:
             pattern: ^/api/
             anonymous: false
             logout: false
+            stateless: true
             guard:
                 authenticators:
                     - app.api_auth
 
         main:
             anonymous: ~
+            stateless: true
             # activate different ways to authenticate
 
             # http_basic: ~
