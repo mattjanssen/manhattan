@@ -34,7 +34,7 @@ require('angular').module('app', [
                 template: '<home></home>'
             })
             .state('create', {
-                url: '/create',
+                url: '/create/{id}',
                 template: '<create></create>'
             })
             .state('404', {
