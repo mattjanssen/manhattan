@@ -4,6 +4,7 @@
 require('angular').module('app', [
     'ngAnimate',
     'ngDragDrop',
+    'ngMaterial',
     'ngResource',
     'ngSanitize',
     'ui.bootstrap',
@@ -77,6 +78,7 @@ global.moment = require('moment');
 require('angular');
 require('angular-animate');
 require('angular-dragdrop');
+require('angular-material');
 require('angular-resource');
 require('angular-route');
 require('angular-sanitize');

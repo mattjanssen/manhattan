@@ -454,3 +454,10 @@ body {
 .btn-page + .btn-page {
     margin-left: 13px;
 }
+
+/**
+* Material overrides
+*/
+md-switch {
+    margin: -5px 0 0;
+}
