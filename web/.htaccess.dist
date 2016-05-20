@@ -57,8 +57,11 @@ DirectoryIndex app.php
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
+    # Rewrite API and login queries to the front controller.
+    RewriteRule ^(api|google-token)(/|$) %{ENV:BASE}/app.php [L]
+
     # Rewrite all other queries to the front controller.
-    RewriteRule ^ %{ENV:BASE}/app.php [L]
+    RewriteRule ^ %{ENV:BASE}/spa.html [L]
 </IfModule>
 
 <IfModule !mod_rewrite.c>

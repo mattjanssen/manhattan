@@ -5,7 +5,7 @@ module.exports = {
     bindings: {
         save: '&'
     },
-    controller: function($timeout) {
+    controller: function($timeout, $element) {
         var viewModel = this;
 
         viewModel.save;
@@ -21,7 +21,7 @@ module.exports = {
         /**
          * Handle Element Tile Hovering over Component
          */
-        function onOver() {
+        function onOver(event, dragdrop) {
             $timeout(function () {
                 // $timeout used to ensure the digest cycle catches the change.
                 // The plugin is not calling $digest or $apply.
@@ -32,7 +32,7 @@ module.exports = {
         /**
          * Handle Element Tile Leaving Component Area
          */
-        function onOut() {
+        function onOut(event, dragdrop) {
             $timeout(function () {
                 viewModel.isOver = false;
             });

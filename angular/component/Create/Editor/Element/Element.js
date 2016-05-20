@@ -15,7 +15,7 @@ module.exports = {
         viewModel.element;
         viewModel.removeElement;
         viewModel.isEditing;
-        
+
         viewModel.editing = false;
         viewModel.deleteHovering = false;
     }

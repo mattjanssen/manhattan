@@ -163,7 +163,7 @@ class GoogleAuthController extends Controller
      *
      * @return string
      */
-    public function createApiKey()
+    private function createApiKey()
     {
         return strtr(rtrim(base64_encode(random_bytes(self::UUID_BYTES)), '='), '+/', '-_');
     }

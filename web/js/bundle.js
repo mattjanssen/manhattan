@@ -230,7 +230,7 @@ module.exports = {
         viewModel.element;
         viewModel.removeElement;
         viewModel.isEditing;
-        
+
         viewModel.editing = false;
         viewModel.deleteHovering = false;
     }
@@ -319,7 +319,7 @@ module.exports = {
     bindings: {
         save: '&'
     },
-    controller: function($timeout) {
+    controller: function($timeout, $element) {
         var viewModel = this;
 
         viewModel.save;
@@ -335,7 +335,7 @@ module.exports = {
         /**
          * Handle Element Tile Hovering over Component
          */
-        function onOver() {
+        function onOver(event, dragdrop) {
             $timeout(function () {
                 // $timeout used to ensure the digest cycle catches the change.
                 // The plugin is not calling $digest or $apply.
@@ -346,7 +346,7 @@ module.exports = {
         /**
          * Handle Element Tile Leaving Component Area
          */
-        function onOut() {
+        function onOut(event, dragdrop) {
             $timeout(function () {
                 viewModel.isOver = false;
             });
@@ -411,9 +411,11 @@ module.exports = {
         /**
          * Watch for Elements Being Added to the New Rows
          *
+         * Enforce ordering of where elements were dropped.
+         *
          * @param elements
          */
-        function saveNewRow(elements, beforeRow) {
+        function saveNewRow(elements, index) {
             if (!elements || !elements.length) {
                 // No new element at this point.
                 return;
@@ -426,11 +428,11 @@ module.exports = {
                 elements: elements
             };
 
-            if (beforeRow) {
+            if (typeof index !== 'undefined') {
                 // Add new row above existing.
-                var rowIndex = _.indexOf(viewModel.page.rows, beforeRow);
-                viewModel.page.rows.splice(rowIndex, 0, newRow);
+                viewModel.page.rows.splice(index, 0, newRow);
             } else {
+                // Add new row to the end.
                 viewModel.page.rows.push(newRow);
             }
         }
@@ -468,20 +470,40 @@ module.exports = {
         removeRow: '&',
         isEditing: '<'
     },
-    controller: function() {
+    controller: function($scope) {
         var viewModel = this;
 
         viewModel.pages;
         viewModel.row;
         viewModel.removeRow;
         viewModel.isEditing;
+        viewModel.uiDraggableOptions = {
+            revert: 'invalid',
+            revertDuration: 0
+        };
 
         viewModel.removeElement = removeElement;
 
+        $scope.$watch('$ctrl.row.elements.length', watchElementsLength);
+
+        /**
+         * Remove Element from this Row
+         *
+         * @param element
+         */
         function removeElement(element) {
             _.pull(viewModel.row.elements, element);
+        }
 
-            if (!viewModel.row.elements.length) {
+        /**
+         * Watch for Changes in Elements Array Length
+         *
+         * Deleted this row if all elements are removed.
+         *
+         * @param length
+         */
+        function watchElementsLength(length) {
+            if (length === 0) {
                 viewModel.removeRow();
             }
         }

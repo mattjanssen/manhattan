@@ -1,4 +1,4 @@
-<div ng-if="$ctrl.isInitd()">
+<div class="app-wrapper" ng-if="$ctrl.isInitd()">
     <div class="create-sidebar">
         <templates pages="$ctrl.pages" edit-page="$ctrl.editPage" get-editing-page="$ctrl.getEditingPage"></templates>
 
@@ -8,5 +8,5 @@
     </div>
 
 
-    <editor pages="$ctrl.pages" is-editing="$ctrl.isEditing"></editor>
+    <editor class="page-editor" pages="$ctrl.pages" is-editing="$ctrl.isEditing"></editor>
 </div>

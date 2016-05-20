@@ -1,7 +1,11 @@
 <div class="element" ng-class="{'element_delete-hover': $ctrl.deleteHovering, 'element_active': $ctrl.editing}">
-    <a class="element-delete" ng-click="$ctrl.removeElement()" ng-mouseover="$ctrl.deleteHovering = true" ng-mouseleave="$ctrl.deleteHovering = false">
+    <div class="element-delete" ng-click="$ctrl.removeElement()" ng-mouseover="$ctrl.deleteHovering = true" ng-mouseleave="$ctrl.deleteHovering = false">
         <span class="glyphicon glyphicon-remove"></span>
-    </a>
+    </div>
+
+    <div class="element-move">
+        : : : :
+    </div>
 
     <div ng-switch="$ctrl.element.type">
         <title-element ng-switch-when="title" element="$ctrl.element"></title-element>

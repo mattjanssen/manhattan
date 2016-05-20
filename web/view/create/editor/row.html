@@ -1,1 +1,1 @@
-<element ng-repeat="element in $ctrl.row.elements" element="element" remove-element="$ctrl.removeElement(element)" pages="$ctrl.pages" is-editing="$ctrl.isEditing"></element>
+<element ng-repeat="element in $ctrl.row.elements" element="element" remove-element="$ctrl.removeElement(element)" pages="$ctrl.pages" is-editing="$ctrl.isEditing" jqyoui-draggable="{index: {{$index}}}" drag="true" ng-model="$ctrl.row.elements" jqyoui-options="$ctrl.uiDraggableOptions"></element>

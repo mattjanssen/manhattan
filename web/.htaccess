@@ -1,6 +1,6 @@
 # Instead of checking for source IP address, this environment variable enables dev
 # mode in the custom app.php.
-SetEnv APPLICATION_ENV dev
+#SetEnv APPLICATION_ENV dev
 
 # Use the front controller as index file. It serves as a fallback solution when
 # every other rewrite/redirect fails (e.g. in an aliased environment without
@@ -57,8 +57,11 @@ DirectoryIndex app.php
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
+    # Rewrite API and login queries to the front controller.
+    RewriteRule ^(api|google-token)(/|$) %{ENV:BASE}/app.php [L]
+
     # Rewrite all other queries to the front controller.
-    RewriteRule ^ %{ENV:BASE}/app.php [L]
+    RewriteRule ^ %{ENV:BASE}/spa.html [L]
 </IfModule>
 
 <IfModule !mod_rewrite.c>

@@ -1,9 +1,7 @@
-<div class="page-editor">
-    <div ng-show="$ctrl.pages.length === 0">
-        To build your site, start by adding a page using the tools to the left!
-    </div>
+<div ng-show="$ctrl.pages.length === 0">
+    To build your site, start by adding a page using the tools to the left!
+</div>
 
-    <div>
-        <page-editor ng-repeat="page in $ctrl.pages" page="page" pages="$ctrl.pages" is-editing="$ctrl.isEditing" ng-show="$ctrl.isEditing(page)"></page-editor>
-    </div>
+<div>
+    <page-editor ng-repeat="page in $ctrl.pages" page="page" pages="$ctrl.pages" is-editing="$ctrl.isEditing" ng-show="$ctrl.isEditing(page)"></page-editor>
 </div>

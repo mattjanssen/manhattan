@@ -43,9 +43,11 @@ module.exports = {
         /**
          * Watch for Elements Being Added to the New Rows
          *
+         * Enforce ordering of where elements were dropped.
+         *
          * @param elements
          */
-        function saveNewRow(elements, beforeRow) {
+        function saveNewRow(elements, index) {
             if (!elements || !elements.length) {
                 // No new element at this point.
                 return;
@@ -58,11 +60,11 @@ module.exports = {
                 elements: elements
             };
 
-            if (beforeRow) {
+            if (typeof index !== 'undefined') {
                 // Add new row above existing.
-                var rowIndex = _.indexOf(viewModel.page.rows, beforeRow);
-                viewModel.page.rows.splice(rowIndex, 0, newRow);
+                viewModel.page.rows.splice(index, 0, newRow);
             } else {
+                // Add new row to the end.
                 viewModel.page.rows.push(newRow);
             }
         }
