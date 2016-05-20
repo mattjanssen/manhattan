@@ -29,8 +29,6 @@ module.exports = {
                     editingPage = null;
                 }
             }
-
-            console.log(newArray, oldArray);
         });
 
         // Populate the existing templates list.

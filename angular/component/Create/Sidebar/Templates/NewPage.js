@@ -56,7 +56,9 @@ module.exports = {
             viewModel.triggerEdit = true;
 
             // Don't let the click bubble to the entire tile.
-            $event.stopPropagation();
+            if ($event) {
+                $event.stopPropagation();
+            }
         }
 
         /**
