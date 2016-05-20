@@ -99,14 +99,14 @@ require('./resource');
 require('./service');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Environment":2,"./component":30,"./directive":32,"./filter":33,"./resource":66,"./service":70,"angular":47,"angular-animate":35,"angular-dragdrop":36,"angular-resource":38,"angular-route":40,"angular-sanitize":42,"angular-ui-bootstrap":44,"angular-ui-router":45,"bootstrap":48,"jquery":62,"jquery-ui":61,"lodash":63,"moment":64}],2:[function(require,module,exports){
+},{"./Environment":2,"./component":31,"./directive":33,"./filter":34,"./resource":67,"./service":71,"angular":48,"angular-animate":36,"angular-dragdrop":37,"angular-resource":39,"angular-route":41,"angular-sanitize":43,"angular-ui-bootstrap":45,"angular-ui-router":46,"bootstrap":49,"jquery":63,"jquery-ui":62,"lodash":64,"moment":65}],2:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .constant('API_URL', '/api')
 ;
 
-},{"angular":47}],3:[function(require,module,exports){
+},{"angular":48}],3:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -311,7 +311,7 @@ require('angular').module('app')
     .component('titleElement', require('./TitleElement'))
 ;
 
-},{"./Element":5,"./ImageElement":6,"./NavElement":7,"./TextElement":8,"./TitleElement":9,"angular":47}],11:[function(require,module,exports){
+},{"./Element":5,"./ImageElement":6,"./NavElement":7,"./TextElement":8,"./TitleElement":9,"angular":48}],11:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -522,7 +522,7 @@ require('angular').module('app')
 
 require('./Element');
 
-},{"./Editor":4,"./Element":10,"./NewRow":11,"./PageEditor":12,"./Row":13,"angular":47}],15:[function(require,module,exports){
+},{"./Editor":4,"./Element":10,"./NewRow":11,"./PageEditor":12,"./Row":13,"angular":48}],15:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -568,7 +568,7 @@ require('angular').module('app')
     .component('elements', require('./Elements'))
 ;
 
-},{"./ElementTile":15,"./Elements":16,"angular":47}],18:[function(require,module,exports){
+},{"./ElementTile":15,"./Elements":16,"angular":48}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -581,11 +581,22 @@ module.exports = {
 },{}],19:[function(require,module,exports){
 'use strict';
 
+module.exports = {
+    templateUrl: 'view/create/sidebar/settings/site-grid-setting.html',
+    controller: function () {
+        var viewModel = this;
+    }
+};
+
+},{}],20:[function(require,module,exports){
+'use strict';
+
 require('angular').module('app')
     .component('settings', require('./Settings'))
+    .component('siteGridSetting', require('./SiteGridSetting'))
 ;
 
-},{"./Settings":18,"angular":47}],20:[function(require,module,exports){
+},{"./Settings":18,"./SiteGridSetting":19,"angular":48}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -678,7 +689,7 @@ module.exports = {
     }
 };
 
-},{}],21:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -771,7 +782,7 @@ module.exports = {
     }
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -837,7 +848,7 @@ module.exports = {
     }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -846,7 +857,7 @@ require('angular').module('app')
     .component('templates', require('./Templates'))
 ;
 
-},{"./NewPage":20,"./SidebarPage":21,"./Templates":22,"angular":47}],24:[function(require,module,exports){
+},{"./NewPage":21,"./SidebarPage":22,"./Templates":23,"angular":48}],25:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -856,7 +867,7 @@ require('./Elements');
 require('./Settings');
 require('./Templates');
 
-},{"./Elements":17,"./Settings":19,"./Templates":23,"angular":47}],25:[function(require,module,exports){
+},{"./Elements":17,"./Settings":20,"./Templates":24,"angular":48}],26:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -866,7 +877,7 @@ require('angular').module('app')
 require('./Editor');
 require('./Sidebar');
 
-},{"./Create":3,"./Editor":14,"./Sidebar":24,"angular":47}],26:[function(require,module,exports){
+},{"./Create":3,"./Editor":14,"./Sidebar":25,"angular":48}],27:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -878,14 +889,14 @@ module.exports = {
     }
 };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('home', require('./Home'))
 ;
 
-},{"./Home":26,"angular":47}],28:[function(require,module,exports){
+},{"./Home":27,"angular":48}],29:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -903,14 +914,14 @@ module.exports = {
     }
 };
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .component('header', require('./Header'))
 ;
 
-},{"./Header":28,"angular":47}],30:[function(require,module,exports){
+},{"./Header":29,"angular":48}],31:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -920,7 +931,7 @@ require('./Create');
 require('./Home');
 require('./Page');
 
-},{"./Create":25,"./Home":27,"./Page":29,"angular":47}],31:[function(require,module,exports){
+},{"./Create":26,"./Home":28,"./Page":30,"angular":48}],32:[function(require,module,exports){
 'use strict';
 
 module.exports = function () {
@@ -939,20 +950,20 @@ module.exports = function () {
     };
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .directive('focusOn', require('./FocusOn'))
 ;
 
-},{"./FocusOn":31,"angular":47}],33:[function(require,module,exports){
+},{"./FocusOn":32,"angular":48}],34:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
 ;
 
-},{"angular":47}],34:[function(require,module,exports){
+},{"angular":48}],35:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -5101,11 +5112,11 @@ angular.module('ngAnimate', [])
 
 })(window, window.angular);
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 require('./angular-animate');
 module.exports = 'ngAnimate';
 
-},{"./angular-animate":34}],36:[function(require,module,exports){
+},{"./angular-animate":35}],37:[function(require,module,exports){
 /**
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -5526,7 +5537,7 @@ var jqyoui = angular.module('ngDragDrop', []).service('ngDragDropService', ['$ti
   };
 })(window, window.angular, window.jQuery);
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -6296,11 +6307,11 @@ angular.module('ngResource', ['ng']).
 
 })(window, window.angular);
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 require('./angular-resource');
 module.exports = 'ngResource';
 
-},{"./angular-resource":37}],39:[function(require,module,exports){
+},{"./angular-resource":38}],40:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -7327,11 +7338,11 @@ function ngViewFillContentFactory($compile, $controller, $route) {
 
 })(window, window.angular);
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 require('./angular-route');
 module.exports = 'ngRoute';
 
-},{"./angular-route":39}],41:[function(require,module,exports){
+},{"./angular-route":40}],42:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -8050,11 +8061,11 @@ angular.module('ngSanitize').filter('linky', ['$sanitize', function($sanitize) {
 
 })(window, window.angular);
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 require('./angular-sanitize');
 module.exports = 'ngSanitize';
 
-},{"./angular-sanitize":41}],43:[function(require,module,exports){
+},{"./angular-sanitize":42}],44:[function(require,module,exports){
 /*
  * angular-ui-bootstrap
  * http://angular-ui.github.io/bootstrap/
@@ -15384,12 +15395,12 @@ angular.module('ui.bootstrap.datepickerPopup').run(function() {!angular.$$csp().
 angular.module('ui.bootstrap.tooltip').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTooltipCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-tooltip-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-html-popup].tooltip.right-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.top-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-left > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.bottom-right > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.left-bottom > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-top > .tooltip-arrow,[uib-tooltip-template-popup].tooltip.right-bottom > .tooltip-arrow,[uib-popover-popup].popover.top-left > .arrow,[uib-popover-popup].popover.top-right > .arrow,[uib-popover-popup].popover.bottom-left > .arrow,[uib-popover-popup].popover.bottom-right > .arrow,[uib-popover-popup].popover.left-top > .arrow,[uib-popover-popup].popover.left-bottom > .arrow,[uib-popover-popup].popover.right-top > .arrow,[uib-popover-popup].popover.right-bottom > .arrow,[uib-popover-html-popup].popover.top-left > .arrow,[uib-popover-html-popup].popover.top-right > .arrow,[uib-popover-html-popup].popover.bottom-left > .arrow,[uib-popover-html-popup].popover.bottom-right > .arrow,[uib-popover-html-popup].popover.left-top > .arrow,[uib-popover-html-popup].popover.left-bottom > .arrow,[uib-popover-html-popup].popover.right-top > .arrow,[uib-popover-html-popup].popover.right-bottom > .arrow,[uib-popover-template-popup].popover.top-left > .arrow,[uib-popover-template-popup].popover.top-right > .arrow,[uib-popover-template-popup].popover.bottom-left > .arrow,[uib-popover-template-popup].popover.bottom-right > .arrow,[uib-popover-template-popup].popover.left-top > .arrow,[uib-popover-template-popup].popover.left-bottom > .arrow,[uib-popover-template-popup].popover.right-top > .arrow,[uib-popover-template-popup].popover.right-bottom > .arrow{top:auto;bottom:auto;left:auto;right:auto;margin:0;}[uib-popover-popup].popover,[uib-popover-html-popup].popover,[uib-popover-template-popup].popover{display:block !important;}</style>'); angular.$$uibTooltipCss = true; });
 angular.module('ui.bootstrap.timepicker').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTimepickerCss && angular.element(document).find('head').prepend('<style type="text/css">.uib-time input{width:50px;}</style>'); angular.$$uibTimepickerCss = true; });
 angular.module('ui.bootstrap.typeahead').run(function() {!angular.$$csp().noInlineStyle && !angular.$$uibTypeaheadCss && angular.element(document).find('head').prepend('<style type="text/css">[uib-typeahead-popup].dropdown-menu{display:block;}</style>'); angular.$$uibTypeaheadCss = true; });
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 require('./dist/ui-bootstrap-tpls');
 
 module.exports = 'ui.bootstrap';
 
-},{"./dist/ui-bootstrap-tpls":43}],45:[function(require,module,exports){
+},{"./dist/ui-bootstrap-tpls":44}],46:[function(require,module,exports){
 /**
  * State-based routing for AngularJS
  * @version v0.3.0
@@ -19965,7 +19976,7 @@ angular.module('ui.router.state')
   .filter('isState', $IsStateFilter)
   .filter('includedByState', $IncludedByStateFilter);
 })(window, window.angular);
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /**
  * @license AngularJS v1.5.5
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -50834,11 +50845,11 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 require('./angular');
 module.exports = angular;
 
-},{"./angular":46}],48:[function(require,module,exports){
+},{"./angular":47}],49:[function(require,module,exports){
 // This file is autogenerated via the `commonjs` Grunt task. You can require() this file in a CommonJS environment.
 require('../../js/transition.js')
 require('../../js/alert.js')
@@ -50852,7 +50863,7 @@ require('../../js/popover.js')
 require('../../js/scrollspy.js')
 require('../../js/tab.js')
 require('../../js/affix.js')
-},{"../../js/affix.js":49,"../../js/alert.js":50,"../../js/button.js":51,"../../js/carousel.js":52,"../../js/collapse.js":53,"../../js/dropdown.js":54,"../../js/modal.js":55,"../../js/popover.js":56,"../../js/scrollspy.js":57,"../../js/tab.js":58,"../../js/tooltip.js":59,"../../js/transition.js":60}],49:[function(require,module,exports){
+},{"../../js/affix.js":50,"../../js/alert.js":51,"../../js/button.js":52,"../../js/carousel.js":53,"../../js/collapse.js":54,"../../js/dropdown.js":55,"../../js/modal.js":56,"../../js/popover.js":57,"../../js/scrollspy.js":58,"../../js/tab.js":59,"../../js/tooltip.js":60,"../../js/transition.js":61}],50:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: affix.js v3.3.6
  * http://getbootstrap.com/javascript/#affix
@@ -51016,7 +51027,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: alert.js v3.3.6
  * http://getbootstrap.com/javascript/#alerts
@@ -51112,7 +51123,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: button.js v3.3.6
  * http://getbootstrap.com/javascript/#buttons
@@ -51234,7 +51245,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: carousel.js v3.3.6
  * http://getbootstrap.com/javascript/#carousel
@@ -51473,7 +51484,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: collapse.js v3.3.6
  * http://getbootstrap.com/javascript/#collapse
@@ -51686,7 +51697,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: dropdown.js v3.3.6
  * http://getbootstrap.com/javascript/#dropdowns
@@ -51853,7 +51864,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: modal.js v3.3.6
  * http://getbootstrap.com/javascript/#modals
@@ -52192,7 +52203,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: popover.js v3.3.6
  * http://getbootstrap.com/javascript/#popovers
@@ -52302,7 +52313,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: scrollspy.js v3.3.6
  * http://getbootstrap.com/javascript/#scrollspy
@@ -52476,7 +52487,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tab.js v3.3.6
  * http://getbootstrap.com/javascript/#tabs
@@ -52633,7 +52644,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: tooltip.js v3.3.6
  * http://getbootstrap.com/javascript/#tooltip
@@ -53149,7 +53160,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 /* ========================================================================
  * Bootstrap: transition.js v3.3.6
  * http://getbootstrap.com/javascript/#transitions
@@ -53210,7 +53221,7 @@ require('../../js/affix.js')
 
 }(jQuery);
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 var jQuery = require('jquery');
 
 /*! jQuery UI - v1.10.3 - 2013-05-03
@@ -68217,7 +68228,7 @@ $.widget( "ui.tooltip", {
 
 }( jQuery ) );
 
-},{"jquery":62}],62:[function(require,module,exports){
+},{"jquery":63}],63:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v2.2.3
  * http://jquery.com/
@@ -78061,7 +78072,7 @@ if ( !noGlobal ) {
 return jQuery;
 }));
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -94307,7 +94318,7 @@ return jQuery;
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 //! moment.js
 //! version : 2.13.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -98348,7 +98359,7 @@ return jQuery;
     return _moment;
 
 }));
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 'use strict';
 
 module.exports = function (ApiResource) {
@@ -98358,14 +98369,14 @@ module.exports = function (ApiResource) {
     return PageResource;
 };
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
     .factory('PageResource', require('./PageResource'))
 ;
 
-},{"./PageResource":65,"angular":47}],67:[function(require,module,exports){
+},{"./PageResource":66,"angular":48}],68:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($injector, $q, $rootScope, API_URL) {
@@ -98465,7 +98476,7 @@ module.exports = function ($injector, $q, $rootScope, API_URL) {
     }
 };
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($resource) {
@@ -98499,7 +98510,7 @@ module.exports = function ($resource) {
     return $apiResource;
 };
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 'use strict';
 
 module.exports = function ($http, $location, $q, $rootScope, API_URL) {
@@ -98589,7 +98600,7 @@ module.exports = function ($http, $location, $q, $rootScope, API_URL) {
     };
 };
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 'use strict';
 
 require('angular').module('app')
@@ -98598,4 +98609,4 @@ require('angular').module('app')
     .factory('AuthenticationService', require('./AuthenticationService'))
 ;
 
-},{"./ApiHttpInterceptor":67,"./ApiResource":68,"./AuthenticationService":69,"angular":47}]},{},[1]);
+},{"./ApiHttpInterceptor":68,"./ApiResource":69,"./AuthenticationService":70,"angular":48}]},{},[1]);

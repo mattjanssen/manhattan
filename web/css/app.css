@@ -156,6 +156,14 @@ body {
     border-bottom: 2px solid rgb(33, 49, 63);
 }
 
+.element-tile-top .element-tile {
+    border-top: none;
+}
+
+.element-tile-bottom .element-tile {
+    border-bottom: none;
+}
+
 .element-tile-name {
     position: absolute;
     margin-top: 84px;
@@ -209,6 +217,13 @@ body {
 
 .element-tile-icon_nav {
     background-image: url('/img/element-tile-nav.png');
+}
+
+.element-settings-grid {
+    height: 52px;
+    padding: 16px 32px 0;
+    border-bottom: 2px solid rgb(33, 49, 63);
+    color: rgb(94, 118, 142);
 }
 
 .page-editor {
