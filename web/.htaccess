@@ -1,6 +1,6 @@
 # Instead of checking for source IP address, this environment variable enables dev
 # mode in the custom app.php.
-#SetEnv APPLICATION_ENV dev
+SetEnv APPLICATION_ENV dev
 
 # Use the front controller as index file. It serves as a fallback solution when
 # every other rewrite/redirect fails (e.g. in an aliased environment without

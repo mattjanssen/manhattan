@@ -85,3 +85,8 @@ api_response:
             cors_allow_headers:
                 - Authorization
                 - Content-Type
+
+app:
+    google_auth:
+        client_id: %google_auth_client_id%
+        client_secret: %google_auth_client_secret%

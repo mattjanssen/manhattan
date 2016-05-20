@@ -6,6 +6,7 @@ use AppBundle\Entity\User;
 use AppBundle\Repository\UserRepository;
 use Doctrine\Common\Persistence\ObjectManager;
 use GuzzleHttp\Client;
+use JMS\DiExtraBundle\Annotation as DI;
 use JMS\DiExtraBundle\Annotation\Inject;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -23,14 +24,23 @@ class GoogleAuthController extends Controller
 
     const USER_OAUTH_PREFIX = 'google:';
 
-    /**
-     * @TODO: Extract into config and parameters.
-     */
     const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
     const GOOGLE_TOKEN_ENDPOINT = 'https://www.googleapis.com/oauth2/v4/token';
     const GOOGLE_PEOPLE_ME_ENDPOINT = 'https://people.googleapis.com/v1/people/me';
-    const CLIENT_ID = '717321476937-6ldjr7vk331mpfd3sbl0tnlcn0q9lil4.apps.googleusercontent.com';
-    const CLIENT_SECRET = '1LWA1nXUVIMQKDWZmBfaUhzI';
+
+    /**
+     * @Inject("%app.google_auth.client_id%")
+     *
+     * @var string
+     */
+    private $clientId;
+
+    /**
+     * @Inject("%app.google_auth.client_secret%")
+     *
+     * @var string
+     */
+    private $clientSecret;
 
     /**
      * @Inject("app.repository.user")
@@ -58,7 +68,7 @@ class GoogleAuthController extends Controller
     {
         $queryData = [
             'scope' => 'profile',
-            'client_id' => self::CLIENT_ID,
+            'client_id' => $this->clientId,
             'response_type' => 'code',
             'redirect_uri' => $this->generateTokenRedirectUrl(),
         ];
@@ -92,8 +102,8 @@ class GoogleAuthController extends Controller
         $options = [
             'form_params' => [
                   'code' => $code,
-                  'client_id' => self::CLIENT_ID,
-                  'client_secret' => self::CLIENT_SECRET,
+                  'client_id' => $this->clientId,
+                  'client_secret' => $this->clientSecret,
                   'grant_type' => 'authorization_code',
                   'redirect_uri' => $this->generateTokenRedirectUrl(),
             ],

@@ -24,3 +24,7 @@ parameters:
 
     # API response bundle options
     cors_allow_origin: .*
+
+    # Google Auth App Client
+    google_auth_client_id: abc123
+    google_auth_client_secret: xyz890
